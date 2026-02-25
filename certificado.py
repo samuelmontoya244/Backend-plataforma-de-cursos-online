@@ -12,40 +12,30 @@ class Certificado:
         fecha_emision: date | None = None,
     ) -> None:
         self._codigo = codigo.strip()
-        self._estudiante_id = estudiante_id.strip()
-        self._estudiante_nombre = estudiante_nombre.strip()
-        self._curso_codigo = curso_codigo.strip()
-        self._curso_nombre = curso_nombre.strip()
-        self._fecha_emision = fecha_emision if fecha_emision else date.today()
+        self._estudiante = (estudiante_id.strip(), estudiante_nombre.strip())
+        self._curso = (curso_codigo.strip(), curso_nombre.strip())
+        self._fecha = fecha_emision or date.today()
 
     @property
     def codigo(self) -> str:
         return self._codigo
 
     @property
-    def estudiante_id(self) -> str:
-        return self._estudiante_id
+    def estudiante(self) -> tuple[str, str]:
+        return self._estudiante
 
     @property
-    def estudiante_nombre(self) -> str:
-        return self._estudiante_nombre
-
-    @property
-    def curso_codigo(self) -> str:
-        return self._curso_codigo
-
-    @property
-    def curso_nombre(self) -> str:
-        return self._curso_nombre
+    def curso(self) -> tuple[str, str]:
+        return self._curso
 
     @property
     def fecha_emision(self) -> date:
-        return self._fecha_emision
+        return self._fecha
 
     def __str__(self) -> str:
         return (
-            f"Certificado {self._codigo}\n"
-            f"Estudiante: {self._estudiante_nombre} ({self._estudiante_id})\n"
-            f"Curso: {self._curso_nombre} ({self._curso_codigo})\n"
-            f"Fecha de emisión: {self._fecha_emision.isoformat()}"
+            f"Certificado {self._codigo} | "
+            f"Estudiante: {self._estudiante[1]} ({self._estudiante[0]}) | "
+            f"Curso: {self._curso[1]} ({self._curso[0]}) | "
+            f"Fecha: {self._fecha.isoformat()}"
         )
