@@ -1,5 +1,5 @@
-from estudiante import Estudiante
-from Curso import Curso
+from src.entities.estudiante import Estudiante
+from src.entities.curso import Curso
 from datetime import date
 
 

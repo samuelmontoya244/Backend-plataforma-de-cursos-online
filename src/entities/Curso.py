@@ -1,5 +1,4 @@
-from instructor import Instructor
-from src.entities import instructor
+from src.entities.instructor import Instructor
 
 
 class Curso:
