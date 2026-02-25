@@ -1,4 +1,4 @@
-from clases.Usuario import Usuario
+from src.entities.usuario import Usuario
 
 class Instructor(Usuario):
     def __init__(
