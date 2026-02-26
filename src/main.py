@@ -1,11 +1,11 @@
 from src.entities.plataforma import Plataforma
-# tutorial del menu
-# 1. Crear un nuevo curso
-# 2. Crear un nuevo instructor  
-# 3. Crear un nuevo estudiante
-# 4. emitir certificado
-# 5. inscribir estudiante
-# 6. poner calificacion
+# guia de menu
+# 1. Crear curso
+# 2. registrar instructor  
+# 3. registrar estudiante
+# 4. inscribir estudiante en curso
+# 5. calificar estudiante
+# 6. emitir certificado
 # 7.salir
 
 # si elije un numero se ejecuta la funcion correspondiente, pero primero se pregunta si ya existe, 
