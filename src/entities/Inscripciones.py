@@ -48,5 +48,9 @@ class Inscripciones:
     def set_curso(self, curso: Curso) -> None:
         self.__curso = curso
 
+    def registrar_calificacion(self, nota: float):
+        self.__nota_final = nota
+        self.__estado = (nota >= 3.0)
+
     def __str__(self) -> str:
         return f"{self.__fecha_inscripcion}, {self.__nota_final}, {self.__estado}, {self.__estudiante}, {self.__curso}"
