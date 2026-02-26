@@ -6,7 +6,7 @@ class Estudiante(Usuario):
         id_usuario: int        = None, 
         nombre: str            = None, 
         apellido: str          = None,  
-        cedula: str            = None, 
+        cedula: str         = None, 
         telefono: str          = None
     )-> None:
         
