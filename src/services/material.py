@@ -2,7 +2,7 @@ from typing import List, Optional
 from uuid import UUID
 
 from src.database.config import SessionLocal
-from src.entities.Material import Material
+from src.entities.material import Material
 
 db = SessionLocal()
 
