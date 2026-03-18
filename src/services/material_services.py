@@ -8,7 +8,6 @@ db = SessionLocal()
 
 
 def crear(
-    Id_material: UUID,
     id_usuario_creacion: UUID,
     id_leccion: UUID,
     titulo_material: str,
@@ -16,7 +15,6 @@ def crear(
     URL_archivo: str,
 ) -> Material:
     material = Material(
-        id_material=Id_material,
         id_usuario_creacion=id_usuario_creacion,
         id_leccion=id_leccion,
         titulo_material=titulo_material,

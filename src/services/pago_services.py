@@ -8,7 +8,6 @@ db = SessionLocal()
 
 
 def crear(
-    Id_Pago: UUID,
     id_usuario: UUID,
     id_usuario_creacion: UUID,
     id_curso: UUID,
@@ -17,7 +16,6 @@ def crear(
     metodo_pago: str,
 ) -> Pago:
     pago = Pago(
-        id_pago=Id_Pago,
         id_usuario=id_usuario,
         id_usuario_creacion=id_usuario_creacion,
         id_curso=id_curso,

@@ -8,13 +8,13 @@ db = SessionLocal()
 
 
 def crear(
-    Id_leccion: UUID,
+    id_leccion: UUID,
     id_usuario_creacion: UUID,
     nombre_evaluacion: str,
     porcentaje: float,
 ) -> Evaluacion:
     evaluacion = Evaluacion(
-        id_leccion=Id_leccion,
+        id_leccion=id_leccion,
         id_usuario_creacion=id_usuario_creacion,
         nombre_evaluacion=nombre_evaluacion,
         porcentaje=porcentaje,

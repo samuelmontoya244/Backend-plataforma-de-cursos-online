@@ -8,7 +8,6 @@ db = SessionLocal()
 
 
 def crear(
-    Id_leccion: UUID,
     id_usuario_creacion: UUID,
     id_curso: UUID,
     titulo_leccion: str,
@@ -17,7 +16,7 @@ def crear(
     duracion_horas: int,
 ) -> Leccion:
     leccion = Leccion(
-        id_leccion=Id_leccion,
+        
         id_usuario_creacion=id_usuario_creacion,
         id_curso=id_curso,
         titulo_leccion=titulo_leccion,
