@@ -1,6 +1,6 @@
 import uuid
 
-from sqlalchemy import Column, ForeignKey, String, Text, int
+from sqlalchemy import Column, ForeignKey, String, Text, int, DateTime, func    
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
 
@@ -25,8 +25,10 @@ class Leccion(Base):
     descripcion_leccion = Column[str](Text, nullable=True)
     orden = Column[int](int, nullable=False, unique=False)
     duracion_horas = Column[int](int, nullable=False)
-
-    
+ 
+    fecha_creacion = Column(DateTime(timezone=True), server_default=func.now())
+    fecha_edicion = Column(DateTime(timezone=True), onupdate=func.now())
+         
     id_usuario_creacion = Column(
         UUID(as_uuid=True), ForeignKey("usuario.id_usuario"), nullable=False
     )

@@ -24,6 +24,7 @@ class Evaluacion(Base):
     nombre_evaluacion = Column[str](String(20),nullable=False)
     porcentaje = Column[float](Float, nullable=False)
     fecha_creacion = Column(DateTime(timezone=True), server_default=func.now())
+    fecha_edicion = Column(DateTime(timezone=True), onupdate=func.now())
      
     
     id_usuario_creacion = Column(

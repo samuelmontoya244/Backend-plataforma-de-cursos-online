@@ -26,10 +26,11 @@ class Pago(Base):
 
 
     monto = Column[float](Float, nullable=False)
-    estado_pago = Column[str](String(20), nullable=True)
+    estado_pago = Column[str](String(20), nullable=False)
     metodo_pago = Column[str](String(50), nullable=False)
 
-    fecha_pago = Column(DateTime(timezone=True), server_default=func.now())
+    fecha_creacion = Column(DateTime(timezone=True), server_default=func.now())
+    fecha_edicion = Column(DateTime(timezone=True), onupdate=func.now())
 
     id_usuario_creacion = Column(
         UUID(as_uuid=True), ForeignKey("usuario.id_usuario"), nullable=False

@@ -17,9 +17,6 @@ from sqlalchemy.exc import OperationalError
 #import src.entities.producto  # noqa: F401 - registrar modelo
 import src.entities.usuario # noqa: F401 - registrar modelo
 import src.entities.Curso # noqa: F401 - registrar modelo
-import src.entities.Leccion # noqa: F401 - registrar modelo
-import src.entities.Material # noqa: F401 - registrar modelo
-import src.entities.Pago # noqa: F401 - registrar modelo
 from src.database.config import create_tables
 
 # Cargar .env desde la carpeta del proyecto (donde está init_db.py)

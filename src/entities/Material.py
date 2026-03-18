@@ -1,6 +1,6 @@
 import uuid
 
-from sqlalchemy import Column, ForeignKey, String
+from sqlalchemy import Column, ForeignKey, String, DateTime, func
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
 
@@ -23,6 +23,11 @@ class Material(Base):
     titulo_material = Column[str](String(20),nullable=False)
     tipo_material = Column[str](String(20), nullable=True)
     URL_archivo = Column[str](String(255), nullable=False)
+
+    
+    fecha_creacion = Column(DateTime(timezone=True), server_default=func.now())
+    fecha_edicion = Column(DateTime(timezone=True), onupdate=func.now())
+     
 
     
     id_usuario_creacion = Column(
