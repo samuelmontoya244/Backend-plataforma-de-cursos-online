@@ -26,10 +26,12 @@ class Usuario(Base):
     )
     
     nombre_usuario = Column(String(150), nullable=False)
+    tipo_documento = Column(String(50), nullable=False)
+    documento_identidad = Column(String(50), nullable=False, unique=True)
     email = Column(String(255), nullable=False, unique=True, index=True)
+    contrasena = Column(String(255), nullable=False)
     activo = Column(Boolean, default=True)
     rol = Column(String(50), nullable=False)
-    contrasena = Column(String(255), nullable=False)
 
     fecha_creacion = Column(DateTime(timezone=True), server_default=func.now())
     fecha_edicion = Column(DateTime(timezone=True), onupdate=func.now())
