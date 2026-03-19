@@ -8,6 +8,7 @@ from sqlalchemy.orm import relationship
 from src.database.config import Base
 
 class EstadoInscripcion(str, Enum):
+    PENDIENTE = "PENDIENTE"
     ACTIVA = "ACTIVA"
     FINALIZADA = "FINALIZADA"
     CANCELADA = "CANCELADA"
