@@ -3,6 +3,9 @@ from uuid import UUID
 
 from src.database.config import SessionLocal
 from src.entities.Pago import Pago
+from src.services import inscripcion as services_inscripcion
+from src.entities.inscripcion import EstadoInscripcion
+
 
 db = SessionLocal()
 
@@ -26,8 +29,20 @@ def crear(
     db.add(pago)
     db.commit()
     db.refresh(pago)
-    return pago
 
+    if estado_pago == "COMPLETADO":
+        inscripcion = services_inscripcion.obtener_por_usuario_y_curso(
+            id_usuario, id_curso
+        )
+
+        if inscripcion:
+            services_inscripcion.actualizar(
+                id_inscripcion=inscripcion.id_inscripcion,
+                id_usuario_edita=id_usuario_creacion,
+                estado_inscripcion=EstadoInscripcion.ACTIVA.value,
+            )
+
+    return pago
 
 def obtener_por_id(id_pago: UUID) -> Optional[Pago]:
     return db.query(Pago).filter(Pago.id_pago == id_pago).first()
