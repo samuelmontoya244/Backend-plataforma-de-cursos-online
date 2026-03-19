@@ -8,7 +8,8 @@ db = SessionLocal()
 
 
 def crear(
-    nombre_categoria: str, id_usuario_creacion: UUID, descripcion: Optional[str] = None
+    nombre_categoria: str,
+    id_usuario_creacion: UUID,
 ) -> Categoria:
     existente = (
         db.query(Categoria)
@@ -20,7 +21,6 @@ def crear(
 
     categoria = Categoria(
         nombre_categoria=nombre_categoria.strip(),
-        descripcion=(descripcion.strip() if descripcion else None),
         id_usuario_creacion=id_usuario_creacion,
     )
     db.add(categoria)
@@ -38,7 +38,10 @@ def obtener_todos() -> List[Categoria]:
 
 
 def actualizar(
-    id_categoria: UUID, id_usuario_edita: UUID, **kwargs: dict
+    id_categoria: UUID,
+    id_usuario_edita: UUID,
+    
+    **kwargs: dict
 ) -> Optional[Categoria]:
     categoria = obtener_por_id(id_categoria)
     if not categoria:

@@ -7,7 +7,9 @@ from src.entities.certificado import Certificado
 db = SessionLocal()
 
 
-def crear(id_inscripcion: UUID, id_usuario_creacion: UUID) -> Certificado:
+def crear(
+    id_inscripcion: UUID,
+    id_usuario_creacion: UUID) -> Certificado:
     certificado = Certificado(
         id_inscripcion=id_inscripcion,
         id_usuario_creacion=id_usuario_creacion,
