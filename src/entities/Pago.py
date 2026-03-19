@@ -17,7 +17,7 @@ class Pago(Base):
         
     )
     id_usuario = Column(
-        UUID(as_uuid=True), ForeignKey("leccion.id_leccion"), nullable=False
+        UUID(as_uuid=True), ForeignKey("usuario.id_usuario"), nullable=False
     )
 
     id_curso = Column(
@@ -25,9 +25,9 @@ class Pago(Base):
     )
 
 
-    monto = Column[float](Float, nullable=False)
-    estado_pago = Column[str](String(20), nullable=False)
-    metodo_pago = Column[str](String(50), nullable=False)
+    monto = Column(Float, nullable=False)
+    estado_pago = Column(String(20), nullable=False)
+    metodo_pago = Column(String(50), nullable=False)
 
     fecha_creacion = Column(DateTime(timezone=True), server_default=func.now())
     fecha_edicion = Column(DateTime(timezone=True), onupdate=func.now())

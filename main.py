@@ -9,7 +9,7 @@ from uuid import UUID
 
 sys.path.insert(0, ".")
 
-#from src.services import categoria as services_categoria
+from src.services import categoria as services_categoria
 from src.services import usuario as services_usuario
 from src.entities.usuario import Usuario
 
@@ -56,6 +56,18 @@ def ingresar_o_crear_usuario() -> Optional[Usuario]:
         if not nombre:
             print("Nombre obligatorio.")
             return None
+        tipo_doc = leer_texto("Tipo documento: ")
+        if not tipo_doc:
+            print("Tipo de documento obligatorio.")
+            return None
+        doc_id = leer_texto("Documento de identidad: ")
+        if not doc_id:
+            print("Documento de identidad obligatorio.")
+            return None
+        email = leer_texto("Email: ")
+        if not email:
+            print("Email obligatorio.")
+            return None
         contra = leer_texto("Contraseña: ")
         if not contra:
             print("Contraseña obligatoria.")
@@ -63,7 +75,7 @@ def ingresar_o_crear_usuario() -> Optional[Usuario]:
         rol = leer_texto("Rol (por defecto 'admin'): ") or "admin"
         try:
             usuario_creado = services_usuario.crear(
-                nombre_usuario=nombre, contrasena=contra, rol=rol
+                nombre_usuario=nombre, tipo_documento=tipo_doc, documento_identidad=doc_id, email=email, contrasena=contra, rol=rol
             )
             print(
                 f"\nUsuario '{usuario_creado.nombre_usuario}' creado. Inicia sesión.\n"
@@ -84,4 +96,100 @@ def ingresar_o_crear_usuario() -> Optional[Usuario]:
             print(f"\nBienvenido, {usuario.nombre_usuario} ({usuario.rol}).\n")
             return usuario
         print("Usuario o contraseña incorrectos.\n")
+
+def menu_categorias(usuario_id: UUID) -> None:
+    while True:
+        print("\n--- Categorías ---")
+        print("1. Listar  2. Crear  3. Actualizar  4. Eliminar  0. Volver")
+        op = leer_texto("Opción: ")
+        if op == "0":
+            return
+        if op == "1":
+            for c in services_categoria.obtener_todos():
+                print(f"  {c.id_categoria} | {c.nombre_categoria}")
+        elif op == "2":
+            nombre_categoria = leer_texto("Nombre categoría: ")
+            if nombre_categoria:
+                try:
+                    services_categoria.crear(nombre_categoria, usuario_id or None)
+                    print("Categoría creada.")
+                except Exception as e:
+                    print("Error:", e)
+            else:
+                print("Nombre obligatorio.")
+        elif op == "3":
+            id_cat = leer_uuid("ID categoría a actualizar: ")
+            if not id_cat:
+                print("ID inválido.")
+                continue
+            c = services_categoria.obtener_por_id(id_cat)
+            if not c:
+                print("No existe esa categoría.")
+                continue
+            nombre_categoria = leer_texto(f"Nuevo nombre (actual: {c.nombre_categoria}): ") or c.nombre_categoria
+            services_categoria.actualizar(
+                id_cat,
+                usuario_id,
+                nombre_categoria=nombre_categoria,
+            )
+            print("Actualizado.")
+        elif op == "4":
+            id_cat = leer_uuid("ID categoría a eliminar: ")
+            if id_cat and services_categoria.eliminar(id_cat):
+                print("Eliminada.")
+            else:
+                print("No se pudo eliminar (ID inválido o no existe).")
+
+def main() -> None:
+    usuario = ingresar_o_crear_usuario()
+    if not usuario:
+        print("No se pudo iniciar sesión. Saliendo.")
+        return
+
+    while True:
+        print("\n========== Menú principal ==========")
+        print("""
+        1. Categorías
+        2. Cursos
+        3. Lecciones
+        4. Material
+        5. Evaluaciones
+        6. Pagos
+        7. Inscripciones
+        8. Calificaciones
+        9. Certificados
+
+        0. Salir
+
+==================================
+        """)
+        
+        op = leer_texto("Opción: ")
+        if op == "0":
+            print(f"Hasta luego {usuario.nombre_usuario}.")
+            break
+        if op == "1":
+            menu_categorias(usuario.id_usuario)
+        #elif op == "2":
+            
+        #elif op == "3":
+
+        #elif op == "4":
+        
+        #elif op == "5":
+
+        #elif op == "6":
+
+        #elif op == "7":
+
+        #elif op == "8":
+
+        #elif op == "9":
+            
+        else:
+            print("Opción no válida.")
+
+
+if __name__ == "__main__":
+    main()
 

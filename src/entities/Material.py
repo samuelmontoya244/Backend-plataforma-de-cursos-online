@@ -20,9 +20,9 @@ class Material(Base):
         UUID(as_uuid=True), ForeignKey("leccion.id_leccion"), nullable=False
     )
 
-    titulo_material = Column[str](String(20),nullable=False)
-    tipo_material = Column[str](String(20), nullable=True)
-    URL_archivo = Column[str](String(255), nullable=False)
+    titulo_material = Column(String(20),nullable=False)
+    tipo_material = Column(String(20), nullable=True)
+    URL_archivo = Column(String(255), nullable=False)
 
     
     fecha_creacion = Column(DateTime(timezone=True), server_default=func.now())
