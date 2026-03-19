@@ -66,3 +66,13 @@ def eliminar(id_leccion: UUID) -> bool:
     db.delete(leccion)
     db.commit()
     return True
+
+def obtener_por_orden_y_curso(orden: int, id_curso: UUID) -> Optional[Leccion]:
+    return (
+        db.query(Leccion)
+        .filter(
+            Leccion.orden == orden,
+            Leccion.id_curso == id_curso
+        )
+        .first()
+    )
