@@ -14,7 +14,7 @@ class EstadoInscripcion(str, Enum):
     APROBADA = "APROBADA"
     REPROBADA = "REPROBADA"
 
-class inscripcion(Base):
+class Inscripcion(Base):
     """Modelo de inscripción"""
 
     __tablename__ = "inscripcion"

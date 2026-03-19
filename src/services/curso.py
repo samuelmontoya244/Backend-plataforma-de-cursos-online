@@ -2,19 +2,22 @@ from typing import List, Optional
 from uuid import UUID
 
 from src.database.config import SessionLocal
-from src.entities.curso import Curso
+from src.entities.Curso import Curso
 
 db = SessionLocal()
-
 
 def crear(
     id_categoria: UUID,
     nombre_curso: str,
-    descripcion_curso: str,
     duracion_horas: int,
     estado_curso: str,
     id_usuario_creacion: UUID,
+    descripcion_curso: str | None = None,
 ) -> Curso:
+    curso_existente = db.query(Curso).filter(Curso.nombre_curso == nombre_curso.strip()).first()
+    if curso_existente:
+        raise ValueError("El curso ya existe")
+    
     curso = Curso(
         id_categoria=id_categoria,
         nombre_curso=nombre_curso.strip(),

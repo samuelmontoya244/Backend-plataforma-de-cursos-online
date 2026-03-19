@@ -2,7 +2,7 @@ from typing import List, Optional
 from uuid import UUID
 
 from src.database.config import SessionLocal
-from src.entities.leccion import Leccion
+from src.entities.Leccion import Leccion
 
 db = SessionLocal()
 
