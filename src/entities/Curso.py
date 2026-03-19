@@ -31,6 +31,6 @@ class Curso(Base):
         UUID(as_uuid=True), ForeignKey("usuario.id_usuario"), nullable=True
     )
 
-    usuario_creacion = relationship("usuario", foreign_keys=[id_usuario_creacion])
-    usuario_edita = relationship("usuario", foreign_keys=[id_usuario_edita])
-    categoria = relationship("categoria", foreign_keys=[id_categoria])
+    usuario_creacion = relationship("Usuario", foreign_keys=[id_usuario_creacion])
+    usuario_edita = relationship("Usuario", foreign_keys=[id_usuario_edita])
+    categoria = relationship("Categoria", foreign_keys=[id_categoria])
