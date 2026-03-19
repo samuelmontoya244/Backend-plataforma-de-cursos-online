@@ -21,6 +21,7 @@ import src.entities.Leccion # noqa: F401 - registrar modelo
 import src.entities.Material # noqa: F401 - registrar modelo
 import src.entities.Evaluacion # noqa: F401 - registrar modelo
 import src.entities.calificacion # noqa: F401 - registrar modelo
+import src.entities.certificado # noqa: F401 - registrar modelo
 
 from src.database.config import create_tables
 
