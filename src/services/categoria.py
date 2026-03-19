@@ -40,14 +40,14 @@ def obtener_todos() -> List[Categoria]:
 def actualizar(
     id_categoria: UUID,
     id_usuario_edita: UUID,
-    
     **kwargs: dict
 ) -> Optional[Categoria]:
     categoria = obtener_por_id(id_categoria)
     if not categoria:
         return None
     for key, value in kwargs.items():
-        setattr(categoria, key, value)
+        if hasattr(categoria, key):
+            setattr(categoria, key, value)
     categoria.id_usuario_edita = id_usuario_edita
     db.commit()
     db.refresh(categoria)
