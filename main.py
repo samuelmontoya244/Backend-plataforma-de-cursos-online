@@ -18,6 +18,9 @@ from src.services import evaluacion as service_evaluacion
 from src.services import pago as service_pago
 from src.services import inscripcion as services_inscripcion
 from src.entities.usuario import Usuario
+from src.services import calificacion as services_calificacion
+from src.services import certificado as services_certificado
+from src.entities.certificado import Certificado 
 
 
 def leer_texto(mensaje: str, default: str = "") -> str:
@@ -460,30 +463,57 @@ def menu_pago(usuario_id: UUID) -> None:
 
         elif op == "2":
             id_cliente = leer_uuid("ID del usuario que paga: ")
+            if not id_cliente:
+                print("El usuario es obligatorio.")
+                continue
+
             monto = leer_float("Monto: ")
+            if monto is None or monto <= 0:
+                print("El monto debe ser mayor a 0.")
+                continue    
+
             metodo = leer_texto("Metodo (Tarjeta/Efectivo): ")
+            if not metodo:
+                print("El método de pago es obligatorio.")
+                continue
+
             id_curso = leer_uuid("ID del curso: ")
+            if not id_curso:
+                print("El ID del curso es obligatorio.")
+                continue
+
+            curso = services_curso.obtener_por_id(id_curso)
+            if not curso:
+                print("El curso no existe.")
+                continue
 
             print("Seleccione el estado del pago:")
             print("1. COMPLETADO  2. PENDIENTE  3. CANCELADO")
             sel_estado = leer_texto("Opcion: ")
 
-            if sel_estado in estados_validos:
-                estado_final = estados_validos[sel_estado]
-                try:
-                    service_pago.crear(
-                        id_usuario_creacion=usuario_id,
-                        id_usuario=id_cliente,
-                        monto=monto,
-                        estado_pago=estado_final,
-                        metodo_pago=metodo,
-                        id_curso=id_curso,
-                    )
-                    print(f"Pago registrado como: {estado_final}")
-                except Exception as e:
-                    print(f"Error al registrar: {e}")
-            else:
-                print("Error: Seleccion de estado no valida.")
+            if sel_estado not in estados_validos:
+                print("Error: Selección de estado no válida.")
+                continue
+
+            estado_final = estados_validos[sel_estado]
+
+            if estado_final == "COMPLETADO" and monto <= 0:
+                print("Un pago completado debe tener monto mayor a 0.")
+                continue
+
+            try:
+                service_pago.crear(
+                    id_usuario_creacion=usuario_id,
+                    id_usuario=id_cliente,
+                    id_curso=id_curso,
+                    monto=monto,
+                    estado_pago=estado_final,
+                    metodo_pago=metodo,
+                )
+                print(f"Pago registrado como: {estado_final}")
+
+            except Exception as e:
+                     print(f"Error al registrar: {e}")
 
         elif op == "3":
             id_pago = leer_uuid("ID pago a actualizar: ")
@@ -502,7 +532,7 @@ def menu_pago(usuario_id: UUID) -> None:
             print("1. Completado  2. Pendiente  3. Cancelado")
             sel_estado = leer_texto("Opcion: ")
 
-            # Lógica para mantener o cambiar el estado
+           
             if sel_estado == "":
                 estado_final = c.estado_pago
             elif sel_estado in estados_validos:
@@ -511,7 +541,7 @@ def menu_pago(usuario_id: UUID) -> None:
                 print("Error: Seleccion no valida.")
                 continue
 
-            # Validaciones de negocio
+            
             if monto_nuevo < 0:
                 print("Error: El monto no puede ser negativo.")
                 continue
@@ -707,10 +737,154 @@ def menu_inscripciones(usuario_id: UUID) -> None:
             print("Actualizado.")
         elif op == "4":
             id_inscripcion = leer_uuid("ID inscripción a eliminar: ")
-            if id_inscripcion and services_inscripcion.eliminar(id_inscripcion):
+            try:
+                if id_inscripcion and services_inscripcion.eliminar(id_inscripcion):
+                    print("Eliminado.")
+                else:
+                    print("No se pudo eliminar (ID inválido o no existe).")
+            except ValueError as e:
+                print("Error:", e)
+                
+def menu_calificaciones(usuario_id: UUID) -> None:
+    while True:
+        print("\n--- Calificaciones ---")
+        print("1. Listar  2. Crear  3. Actualizar  4. Eliminar  0. Volver")
+        op = leer_texto("Opción: ")
+        if op == "0":
+            return
+        if op == "1":
+            for c in services_calificacion.obtener_todos():
+                print(
+                    f"  {c.id_inscripcion} | {c.id_evaluacion} | {c.Nota}"
+                )
+        elif op == "2":
+            id_inscripcion = leer_uuid("ID de la inscripción: ")
+            id_evaluacion = leer_uuid("ID de la evaluación: ")
+            nota = leer_float("Nota obtenida: ")
+
+            if not services_inscripcion.obtener_por_id(id_inscripcion):
+                print("La inscripción no existe o no es válida.")
+                continue
+
+            if not service_evaluacion.obtener_por_id(id_evaluacion):
+                print("La evaluación no existe o no es válida.")
+                continue
+
+            if id_inscripcion and id_evaluacion and nota is not None:
+                try:
+                    services_calificacion.crear(
+                        id_inscripcion=id_inscripcion,
+                        id_evaluacion=id_evaluacion,
+                        Nota=nota,
+                        id_usuario_creacion=usuario_id,
+                    )
+                    print("Calificación creada.")
+                except ValueError as e:
+                    print("Error:", e)
+            else:
+                print("Todos los campos son obligatorios.")
+        elif op == "3":
+            id_inscripcion = leer_uuid(
+                "ID inscripción de la calificación a actualizar: "
+            )
+            id_evaluacion = leer_uuid("ID evaluación de la calificación a actualizar: ")
+            if not id_inscripcion or not id_evaluacion:
+                print("IDs inválidos.")
+                continue
+            c = services_calificacion.obtener_por_id(id_inscripcion, id_evaluacion)
+            if not c:
+                print("No existe esa calificación.")
+                continue
+            Nota = leer_float(f"Nueva nota (actual: {c.Nota}): ") or c.Nota
+            services_calificacion.actualizar(
+                id_inscripcion, id_evaluacion, usuario_id, Nota=Nota
+            )
+            print("Actualizado.")
+        elif op == "4":
+            id_inscripcion = leer_uuid("ID inscripción de la calificación a eliminar: ")
+            id_evaluacion = leer_uuid("ID evaluación de la calificación a eliminar: ")
+            if (
+                id_inscripcion
+                and id_evaluacion
+                and services_calificacion.eliminar(id_inscripcion, id_evaluacion)
+            ):
+                print("Eliminada.")
+            else:
+                print("No se pudo eliminar (IDs inválidos o no existe).")
+        if op == "1":
+            calificaciones = services_calificacion.obtener_todos()
+            if not calificaciones:
+                print("No hay calificaciones registradas.")
+            else:
+                for c in calificaciones:
+                    print(f"  {c.id_inscripcion} | {c.id_evaluacion} | {c.Nota}")
+
+def menu_certificados(usuario_id: UUID) -> None:
+    while True:
+        print("\n--- Certificados ---")
+        print("1. Listar  2. Crear  3. Actualizar  4. Eliminar  0. Volver")
+        op = leer_texto("Opción: ")
+        if op == "0":
+            return
+        if op == "1":
+            certificados = services_certificado.obtener_todos()
+            if not certificados:
+                print("No hay certificados registrados.")
+            else:
+                for c in certificados:
+                    print(f"  {c.id_certificado} | {c.id_inscripcion} | {c.fecha_creacion}")
+
+        elif op == "2":
+            id_inscripcion = leer_uuid("ID de la inscripción: ")
+            
+            if not services_inscripcion.obtener_por_id(id_inscripcion):
+                print("La inscripción no existe o no es válida.")
+                continue
+
+            if id_inscripcion:
+                try:
+                    services_certificado.crear(
+                        id_inscripcion=id_inscripcion, id_usuario_creacion=usuario_id
+                    )
+                    print("Certificado creado.")
+                except Exception as e:
+                    print("Error:", e)
+            else:
+                print("Todos los campos son obligatorios.")
+        elif op == "3":
+            id_cert = leer_uuid("ID certificado a actualizar: ")
+            if not id_cert:
+                print("ID inválido.")
+                continue
+            c = services_certificado.obtener_por_id(id_cert)
+            if not c:
+                print("No existe ese certificado.")
+                continue
+            nuevo_id_inscripcion = leer_uuid(
+                f"Nuevo ID de inscripción (actual: {c.id_inscripcion}): "
+            )
+
+            if nuevo_id_inscripcion is None:
+                id_inscripcion = c.id_inscripcion
+            else:
+                if not services_inscripcion.obtener_por_id(nuevo_id_inscripcion):
+                    print("La inscripción no existe o no es válida.")
+                    continue
+                id_inscripcion = nuevo_id_inscripcion
+
+            services_certificado.actualizar(
+                id_cert,
+                usuario_id,
+                id_inscripcion=id_inscripcion,
+            )
+            print("Actualizado.")
+        elif op == "4":
+            id_cert = leer_uuid("ID certificado a eliminar: ")
+            if id_cert and services_certificado.eliminar(id_cert):
                 print("Eliminado.")
             else:
                 print("No se pudo eliminar (ID inválido o no existe).")
+
 
 
 def main() -> None:
@@ -769,9 +943,13 @@ def main() -> None:
             menu_inscripciones(usuario.id_usuario)
             continue
 
-        # elif op == "8":
+        elif op == "8":
+            menu_calificaciones(usuario.id_usuario)
+            continue
+        elif op == "9":
+            menu_certificados(usuario.id_usuario)
+            continue
 
-        # elif op == "9":
 
         else:
             print("Opción no válida.")

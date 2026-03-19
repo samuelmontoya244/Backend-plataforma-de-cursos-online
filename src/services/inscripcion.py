@@ -2,22 +2,25 @@ from typing import List, Optional
 from uuid import UUID
 
 from src.database.config import SessionLocal
-from src.entities.inscripcion import Inscripcion
+from src.entities.inscripcion import Inscripcion  
 from src.entities.inscripcion import EstadoInscripcion
 from src.services import curso as curso_services
+from src.entities.certificado import Certificado  
 
 db = SessionLocal()
 
 def obtener_inscripcion_activa(
-    id_usuario_inscrito: UUID,
-    id_curso: UUID
+    id_usuario_inscrito: UUID, id_curso: UUID
 ) -> Optional[Inscripcion]:
-
-    return db.query(Inscripcion).filter(
-        Inscripcion.id_usuario_inscrito == id_usuario_inscrito,
-        Inscripcion.id_curso == id_curso,
-        Inscripcion.estado_inscripcion == EstadoInscripcion.ACTIVA
-    ).first()
+    return (
+        db.query(Inscripcion)
+        .filter(
+            Inscripcion.id_usuario_inscrito == id_usuario_inscrito,
+            Inscripcion.id_curso == id_curso,
+            Inscripcion.estado_inscripcion == EstadoInscripcion.ACTIVA,
+        )
+        .first()
+    )
 
 def crear(
     id_curso: UUID,
@@ -48,41 +51,64 @@ def crear(
     return nueva_inscripcion
 
 def obtener_por_id(id_inscripcion: UUID) -> Optional[Inscripcion]:
-    return db.query(Inscripcion).filter(Inscripcion.id_inscripcion == id_inscripcion).first()
+    return (
+        db.query(Inscripcion)
+        .filter(Inscripcion.id_inscripcion == id_inscripcion)
+        .first()
+    )
 
 def obtener_todos() -> List[Inscripcion]:
     return db.query(Inscripcion).all()
 
 def obtener_por_usuario(id_usuario: UUID) -> List[Inscripcion]:
-    return db.query(Inscripcion).filter(Inscripcion.id_usuario_inscrito == id_usuario).all()
-
-def obtener_por_usuario_y_curso(id_usuario, id_curso):
-    return db.query(Inscripcion).filter(
-        Inscripcion.id_usuario_inscrito == id_usuario,
-        Inscripcion.id_curso == id_curso
-    ).first()
+    return (
+        db.query(Inscripcion)
+        .filter(Inscripcion.id_usuario_inscrito == id_usuario)
+        .all()
+    )
 
 def actualizar(
     id_inscripcion: UUID,
     id_usuario_edita: UUID,
-    
     **kwargs: dict,
 ) -> Optional[Inscripcion]:
-    inscripcion = obtener_por_id(id_inscripcion)
-    if not inscripcion:
+    insc = obtener_por_id(
+        id_inscripcion
+    )  
+    if not insc:
         return None
     for key, value in kwargs.items():
-        if hasattr(inscripcion, key):
-            setattr(inscripcion, key, value)
-    inscripcion.id_usuario_edita = id_usuario_edita
+        if hasattr(insc, key):
+            setattr(insc, key, value)
+    insc.id_usuario_edita = id_usuario_edita
     db.commit()
-    db.refresh(inscripcion)
-    return inscripcion
+    db.refresh(insc)
+    return insc
 
 def eliminar(id_inscripcion: UUID) -> bool:
+    certificado = db.query(Certificado).filter(
+        Certificado.id_inscripcion == id_inscripcion
+    ).first()
+
+    if certificado:
+        raise ValueError("No se puede eliminar la inscripción porque tiene un certificado asociado")
+    
     inscripcion = obtener_por_id(id_inscripcion)
     if not inscripcion:
         return False
     db.delete(inscripcion)
     db.commit()
     return True
+
+def obtener_por_usuario_y_curso(
+    id_usuario: UUID, id_curso: UUID
+) -> Optional[Inscripcion]:
+    return (
+        db.query(Inscripcion)
+        .filter(
+            Inscripcion.id_usuario_inscrito == id_usuario,
+            Inscripcion.id_curso == id_curso,
+        )
+        .first()
+    )
+
