@@ -12,10 +12,15 @@ import os
 from dotenv import load_dotenv
 from sqlalchemy.exc import OperationalError
 
-#import src.entities.categoria  # noqa: F401 - registrar modelo
-#import src.entities.pedido  # noqa: F401 - registrar modelo
-#import src.entities.producto  # noqa: F401 - registrar modelo
+import src.entities.categoria  # noqa: F401 - registrar modelo
 import src.entities.usuario # noqa: F401 - registrar modelo
+import src.entities.curso # noqa: F401 - registrar modelo
+import src.entities.inscripcion # noqa: F401 - registrar modelo
+import src.entities.pago # noqa: F401 - registrar modelo
+import src.entities.leccion # noqa: F401 - registrar modelo
+import src.entities.material # noqa: F401 - registrar modelo
+import src.entities.evaluacion # noqa: F401 - registrar modelo
+import src.entities.calificacion # noqa: F401 - registrar modelo
 
 from src.database.config import create_tables
 

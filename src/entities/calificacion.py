@@ -10,7 +10,7 @@ from src.database.config import Base
 class Calificacion(Base):
     __tablename__ = "calificacion"
 
-    id_inscripcion = Column(UUID(as_uuid=True), ForeignKey("inscripcion.ID_inscripcion"), primary_key=True)
+    id_inscripcion = Column(UUID(as_uuid=True), ForeignKey("inscripcion.id_inscripcion"), primary_key=True)
     id_evaluacion = Column(UUID(as_uuid=True), ForeignKey("evaluacion.id_evaluacion"), primary_key=True)
 
     Nota = Column(Float, nullable=False)

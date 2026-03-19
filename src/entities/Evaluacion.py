@@ -13,16 +13,16 @@ class Evaluacion(Base):
     __tablename__ = "evaluacion"
 
     id_evaluacion = Column(
-        UUID(as_uuid=True),primary_key=True,default=uuid.uuid4,index=True
+        UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, index=True
     )
     
     id_leccion = Column(
-        UUID(as_uuid=True), ForeignKey("leccion.id_leccion"), nullable=False
+        UUID(as_uuid=True), ForeignKey("leccion.id_leccion"), nullable=False, unique=True
     )
 
 
-    nombre_evaluacion = Column[str](String(20),nullable=False)
-    porcentaje = Column[float](Float, nullable=False)
+    nombre_evaluacion = Column(String(20),nullable=False)
+    porcentaje = Column(Float, nullable=False)
     fecha_creacion = Column(DateTime(timezone=True), server_default=func.now())
     fecha_edicion = Column(DateTime(timezone=True), onupdate=func.now())
      
