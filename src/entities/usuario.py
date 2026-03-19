@@ -15,7 +15,6 @@ from sqlalchemy.sql import func
 
 from src.database.config import Base
 
-
 class Usuario(Base):
     """Modelo ORM Persona. Es quien crea/edita registros (trazabilidad)."""
 
@@ -26,14 +25,15 @@ class Usuario(Base):
     )
     
     nombre_usuario = Column(String(150), nullable=False)
+    tipo_documento = Column(String(50), nullable=False)
+    documento_identidad = Column(String(50), nullable=False, unique=True)
     email = Column(String(255), nullable=False, unique=True, index=True)
+    contrasena = Column(String(255), nullable=False)
     activo = Column(Boolean, default=True)
     rol = Column(String(50), nullable=False)
-    contrasena = Column(String(255), nullable=False)
 
     fecha_creacion = Column(DateTime(timezone=True), server_default=func.now())
     fecha_edicion = Column(DateTime(timezone=True), onupdate=func.now())
-
 
 class PersonaBase(BaseModel):
     """Esquema base con validaciones simples."""
@@ -42,12 +42,10 @@ class PersonaBase(BaseModel):
     email: EmailStr
     activo: bool = True
 
-
 class PersonaCreate(PersonaBase):
     """Esquema para creación."""
 
     pass
-
 
 class PersonaUpdate(BaseModel):
     """Esquema para actualización parcial."""
@@ -55,7 +53,6 @@ class PersonaUpdate(BaseModel):
     nombre_usuario: Optional[str] = Field(None, min_length=1, max_length=150)
     email: Optional[EmailStr] = None
     activo: Optional[bool] = None
-
 
 class PersonaResponse(PersonaBase):
     """Esquema de respuesta (lectura)."""

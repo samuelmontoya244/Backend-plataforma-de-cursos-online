@@ -42,5 +42,5 @@ class Pago(Base):
 
     usuario_creacion = relationship("Usuario", foreign_keys=[id_usuario_creacion])
     usuario_edita = relationship("Usuario", foreign_keys=[id_usuario_edita])
-
+    usuario = relationship("Usuario", foreign_keys=[id_usuario])
     curso = relationship("Curso", foreign_keys=[id_curso])

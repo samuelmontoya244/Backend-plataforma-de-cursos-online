@@ -39,7 +39,4 @@ class Material(Base):
 
     usuario_creacion = relationship("Usuario", foreign_keys=[id_usuario_creacion])
     usuario_edita = relationship("Usuario", foreign_keys=[id_usuario_edita])
-
-
-
     leccion = relationship("Leccion", foreign_keys=[id_leccion])
