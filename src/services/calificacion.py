@@ -8,7 +8,10 @@ db = SessionLocal()
 
 
 def crear(
-    id_inscripcion: UUID, id_evaluacion: UUID, nota: float, id_usuario_creacion: UUID
+    id_inscripcion: UUID,
+    id_evaluacion: UUID,
+    nota: float, 
+    id_usuario_creacion: UUID
 ) -> Calificacion:
     existente = obtener_por_id(id_inscripcion, id_evaluacion)
     if existente:
