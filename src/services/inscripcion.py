@@ -7,7 +7,6 @@ from src.entities.inscripcion import EstadoInscripcion
 from src.services import curso as curso_services
 from src.entities.certificado import Certificado  
 
-
 def obtener_inscripcion_activa(
     db: Session, id_usuario_inscrito: UUID, id_curso: UUID
 ) -> Optional[Inscripcion]:

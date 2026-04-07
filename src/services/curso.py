@@ -35,18 +35,14 @@ def crear(
     db.refresh(curso)
     return curso
 
-
 def obtener_por_id(db: Session, id_curso: UUID) -> Optional[Curso]:
     return db.query(Curso).filter(Curso.id_curso == id_curso).first()
-
 
 def obtener_todos(db: Session, skip: int = 0, limit: int = 100) -> List[Curso]:
     return db.query(Curso).offset(skip).limit(limit).all()
 
-
 def obtener_por_usuario(db: Session, id_usuario: UUID) -> List[Curso]:
     return db.query(Curso).filter(Curso.id_usuario_creacion == id_usuario).all()
-
 
 def actualizar(
     db: Session,
@@ -64,7 +60,6 @@ def actualizar(
     db.commit()
     db.refresh(curso)
     return curso
-
 
 def eliminar(db: Session, id_curso: UUID) -> bool:
     curso = obtener_por_id(db, id_curso)

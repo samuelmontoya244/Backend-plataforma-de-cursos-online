@@ -6,25 +6,22 @@ from fastapi import APIRouter, HTTPException, status
 from .deps import DbSession
 
 from src.services import curso as services_curso
+from src.schemas.response_schema import RespuestaAPI
 from src.schemas.curso_schema import (
     CursoCreate,
     CursoUpdate,
-    CursoRead,
     CursoResponse,
-    RespuestaAPI
 )
 
 router = APIRouter(prefix="/cursos", tags=["cursos"])
-
 
 @router.get("", response_model=List[CursoResponse])
 def listar_cursos(db: DbSession, skip: int = 0, limit: int = 100):
     cursos = services_curso.obtener_todos(db, skip, limit)
     return cursos
 
-
-@router.get("/{id_curso}", response_model=CursoRead)
-def obtener_curso(db: DbSession, id_curso: UUID) -> CursoRead:
+@router.get("/{id_curso}", response_model=CursoResponse)
+def obtener_curso(db: DbSession, id_curso: UUID) -> CursoResponse:
     db_curso = services_curso.obtener_por_id(db, id_curso)
     if not db_curso:
         raise HTTPException(
@@ -32,8 +29,7 @@ def obtener_curso(db: DbSession, id_curso: UUID) -> CursoRead:
         )
     return db_curso
 
-
-@router.post("", response_model=CursoRead, status_code=status.HTTP_201_CREATED)
+@router.post("", response_model=CursoResponse, status_code=status.HTTP_201_CREATED)
 def crear_curso(db: DbSession, dato: CursoCreate):
 
     try:
@@ -51,8 +47,7 @@ def crear_curso(db: DbSession, dato: CursoCreate):
             detail=str(e)
         )
 
-
-@router.put("/{id_curso}", response_model=CursoRead)
+@router.put("/{id_curso}", response_model=CursoResponse)
 def actualizar_curso(db: DbSession, id_curso: UUID, dato: CursoUpdate):
 
     curso = services_curso.actualizar(
@@ -68,7 +63,6 @@ def actualizar_curso(db: DbSession, id_curso: UUID, dato: CursoUpdate):
         )
 
     return curso
-
 
 @router.delete("/{id_curso}", response_model=RespuestaAPI)
 def eliminar_curso(db: DbSession, id_curso: UUID) -> None:

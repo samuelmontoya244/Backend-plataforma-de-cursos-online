@@ -6,25 +6,22 @@ from fastapi import APIRouter, HTTPException, status
 from .deps import DbSession
 
 from src.services import usuario as services_usuario
+from src.schemas.response_schema import RespuestaAPI
 from src.schemas.usuario_schema import (
     UsuarioCreate,
     UsuarioUpdate,
-    UsuarioRead,
     UsuarioResponse,
-    RespuestaAPI
 )
 
 router = APIRouter(prefix="/usuarios", tags=["usuarios"])
-
 
 @router.get("", response_model=List[UsuarioResponse])
 def listar_usuarios(db: DbSession, skip: int = 0, limit: int = 100):
     usuarios = services_usuario.obtener_todos(db, skip=skip, limit=limit)
     return usuarios
 
-
-@router.get("/{id_usuario}", response_model=UsuarioRead)
-def obtener_usuario(db: DbSession, id_usuario: UUID) -> UsuarioRead:
+@router.get("/{id_usuario}", response_model=UsuarioResponse)
+def obtener_usuario(db: DbSession, id_usuario: UUID) -> UsuarioResponse:
     db_usuario = services_usuario.obtener_por_id(db, id_usuario)
     if not db_usuario:
         raise HTTPException(
@@ -32,8 +29,7 @@ def obtener_usuario(db: DbSession, id_usuario: UUID) -> UsuarioRead:
         )
     return db_usuario
 
-
-@router.post("", response_model=UsuarioRead, status_code=status.HTTP_201_CREATED)
+@router.post("", response_model=UsuarioResponse, status_code=status.HTTP_201_CREATED)
 def crear_usuario(db: DbSession, dato: UsuarioCreate):
 
     try:
@@ -55,8 +51,7 @@ def crear_usuario(db: DbSession, dato: UsuarioCreate):
             detail=str(e)
         )
 
-
-@router.put("/{id_usuario}", response_model=UsuarioRead)
+@router.put("/{id_usuario}", response_model=UsuarioResponse)
 def actualizar_usuario(db: DbSession, id_usuario: UUID, dato: UsuarioUpdate):
 
     usuario = services_usuario.actualizar(
@@ -72,7 +67,6 @@ def actualizar_usuario(db: DbSession, id_usuario: UUID, dato: UsuarioUpdate):
         )
 
     return usuario
-
 
 @router.delete("/{id_usuario}", response_model=RespuestaAPI)
 def eliminar_usuario(db: DbSession, id_usuario: UUID, ) -> None:

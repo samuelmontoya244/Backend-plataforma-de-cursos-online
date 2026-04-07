@@ -6,25 +6,22 @@ from fastapi import APIRouter, HTTPException, status
 from .deps import DbSession
 
 from src.services import inscripcion as services_inscripcion
+from src.schemas.response_schema import RespuestaAPI
 from src.schemas.inscripcion_schema import (
     InscripcionCreate,
     InscripcionUpdate,
-    InscripcionRead,
     InscripcionResponse,
-    RespuestaAPI
 )
 
 router = APIRouter(prefix="/inscripciones", tags=["inscripciones"])
-
 
 @router.get("", response_model=List[InscripcionResponse])
 def listar_inscripciones(db: DbSession, skip: int = 0, limit: int = 100):
     inscripciones = services_inscripcion.obtener_todos(db, skip, limit)
     return inscripciones
 
-
-@router.get("/{id_inscripcion}", response_model=InscripcionRead)
-def obtener_inscripcion(db: DbSession, id_inscripcion: UUID) -> InscripcionRead:
+@router.get("/{id_inscripcion}", response_model=InscripcionResponse)
+def obtener_inscripcion(db: DbSession, id_inscripcion: UUID) -> InscripcionResponse:
     db_inscripcion = services_inscripcion.obtener_por_id(db, id_inscripcion)
     if not db_inscripcion:
         raise HTTPException(
@@ -32,8 +29,7 @@ def obtener_inscripcion(db: DbSession, id_inscripcion: UUID) -> InscripcionRead:
         )
     return db_inscripcion
 
-
-@router.post("", response_model=InscripcionRead, status_code=status.HTTP_201_CREATED)
+@router.post("", response_model=InscripcionResponse, status_code=status.HTTP_201_CREATED)
 def crear_inscripcion(db: DbSession, dato: InscripcionCreate):
 
     try:
@@ -41,7 +37,6 @@ def crear_inscripcion(db: DbSession, dato: InscripcionCreate):
             db,
             id_curso=dato.id_curso,
             id_usuario_inscrito=dato.id_usuario_inscrito,
-            id_usuario_creacion=dato.id_usuario_creacion,
             estado_inscripcion=dato.estado_inscripcion,
         )
         return inscripcion
@@ -52,8 +47,7 @@ def crear_inscripcion(db: DbSession, dato: InscripcionCreate):
             detail=str(e)
         )
 
-
-@router.put("/{id_inscripcion}", response_model=InscripcionRead)
+@router.put("/{id_inscripcion}", response_model=InscripcionResponse)
 def actualizar_inscripcion(db: DbSession, id_inscripcion: UUID, dato: InscripcionUpdate):
 
     inscripcion = services_inscripcion.actualizar(
@@ -69,7 +63,6 @@ def actualizar_inscripcion(db: DbSession, id_inscripcion: UUID, dato: Inscripcio
         )
 
     return inscripcion
-
 
 @router.delete("/{id_inscripcion}", response_model=RespuestaAPI)
 def eliminar_inscripcion(db: DbSession, id_inscripcion: UUID) -> None:
