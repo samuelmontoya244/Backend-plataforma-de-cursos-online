@@ -18,14 +18,14 @@ router = APIRouter(prefix="/usuarios", tags=["usuarios"])
 
 
 @router.get("", response_model=List[UsuarioResponse])
-def listar_usuarios(db: DbSession):
-    usuarios = services_usuario.obtener_todos()
+def listar_usuarios(db: DbSession, skip: int = 0, limit: int = 100):
+    usuarios = services_usuario.obtener_todos(db, skip=skip, limit=limit)
     return usuarios
 
 
 @router.get("/{id_usuario}", response_model=UsuarioRead)
-def obtener_usuario(id_usuario: UUID, db: DbSession) -> UsuarioRead:
-    db_usuario = services_usuario.obtener_por_id(id_usuario)
+def obtener_usuario(db: DbSession, id_usuario: UUID) -> UsuarioRead:
+    db_usuario = services_usuario.obtener_por_id(db, id_usuario)
     if not db_usuario:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail=f"El usuario con ID {id_usuario} no existe en la base de datos"
@@ -34,10 +34,11 @@ def obtener_usuario(id_usuario: UUID, db: DbSession) -> UsuarioRead:
 
 
 @router.post("", response_model=UsuarioRead, status_code=status.HTTP_201_CREATED)
-def crear_usuario(dato: UsuarioCreate):
+def crear_usuario(db: DbSession, dato: UsuarioCreate):
 
     try:
         usuario = services_usuario.crear(
+            db,
             nombre_usuario=dato.nombre_usuario,
             tipo_documento=dato.tipo_documento,
             documento_identidad=dato.documento_identidad,
@@ -56,9 +57,10 @@ def crear_usuario(dato: UsuarioCreate):
 
 
 @router.put("/{id_usuario}", response_model=UsuarioRead)
-def actualizar_usuario(id_usuario: UUID, dato: UsuarioUpdate, db: DbSession):
+def actualizar_usuario(db: DbSession, id_usuario: UUID, dato: UsuarioUpdate):
 
     usuario = services_usuario.actualizar(
+        db,
         id_usuario,
         **dato.model_dump(exclude_unset=True)
     )
@@ -73,16 +75,16 @@ def actualizar_usuario(id_usuario: UUID, dato: UsuarioUpdate, db: DbSession):
 
 
 @router.delete("/{id_usuario}", response_model=RespuestaAPI)
-def eliminar_usuario(id_usuario: UUID, db: DbSession) -> None:
+def eliminar_usuario(db: DbSession, id_usuario: UUID, ) -> None:
     try:
         # Verificar que el usuario existe
-        usuario_existente = services_usuario.obtener_por_id(id_usuario)
+        usuario_existente = services_usuario.obtener_por_id(db, id_usuario)
         if not usuario_existente:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND, detail="Usuario no encontrado"
             )
 
-        eliminado = services_usuario.eliminar(id_usuario)
+        eliminado = services_usuario.eliminar(db, id_usuario)
         if eliminado:
             return RespuestaAPI(mensaje="Usuario eliminado exitosamente", exito=True)
         else:

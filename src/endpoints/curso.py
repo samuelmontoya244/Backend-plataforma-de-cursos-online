@@ -18,14 +18,14 @@ router = APIRouter(prefix="/cursos", tags=["cursos"])
 
 
 @router.get("", response_model=List[CursoResponse])
-def listar_cursos(db: DbSession):
-    cursos = services_curso.obtener_todos()
+def listar_cursos(db: DbSession, skip: int = 0, limit: int = 100):
+    cursos = services_curso.obtener_todos(db, skip, limit)
     return cursos
 
 
 @router.get("/{id_curso}", response_model=CursoRead)
-def obtener_curso(id_curso: UUID, db: DbSession) -> CursoRead:
-    db_curso = services_curso.obtener_por_id(id_curso)
+def obtener_curso(db: DbSession, id_curso: UUID) -> CursoRead:
+    db_curso = services_curso.obtener_por_id(db, id_curso)
     if not db_curso:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail=f"El curso con ID {id_curso} no existe en la base de datos"
@@ -34,10 +34,11 @@ def obtener_curso(id_curso: UUID, db: DbSession) -> CursoRead:
 
 
 @router.post("", response_model=CursoRead, status_code=status.HTTP_201_CREATED)
-def crear_curso(dato: CursoCreate):
+def crear_curso(db: DbSession, dato: CursoCreate):
 
     try:
         curso = services_curso.crear(
+            db,
             id_categoria=dato.id_categoria,
             nombre_curso=dato.nombre_curso,
             duracion_horas=dato.duracion_horas,
@@ -52,9 +53,10 @@ def crear_curso(dato: CursoCreate):
 
 
 @router.put("/{id_curso}", response_model=CursoRead)
-def actualizar_curso(id_curso: UUID, dato: CursoUpdate, db: DbSession):
+def actualizar_curso(db: DbSession, id_curso: UUID, dato: CursoUpdate):
 
     curso = services_curso.actualizar(
+        db,
         id_curso,
         **dato.model_dump(exclude_unset=True)
     )
@@ -69,16 +71,16 @@ def actualizar_curso(id_curso: UUID, dato: CursoUpdate, db: DbSession):
 
 
 @router.delete("/{id_curso}", response_model=RespuestaAPI)
-def eliminar_curso(id_curso: UUID, db: DbSession) -> None:
+def eliminar_curso(db: DbSession, id_curso: UUID) -> None:
     try:
         # Verificar que el curso existe
-        curso_existente = services_curso.obtener_por_id(id_curso)
+        curso_existente = services_curso.obtener_por_id(db, id_curso)
         if not curso_existente:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND, detail="Curso no encontrado"
             )
 
-        eliminado = services_curso.eliminar(id_curso)
+        eliminado = services_curso.eliminar(db, id_curso)
         if eliminado:
             return RespuestaAPI(mensaje="Curso eliminado exitosamente", exito=True)
         else:
