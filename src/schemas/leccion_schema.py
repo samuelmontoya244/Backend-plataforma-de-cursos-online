@@ -5,7 +5,6 @@ from uuid import UUID
 from pydantic import BaseModel, ConfigDict
 
 class  leccionCreate(BaseModel):
-     id_usuario_creacion: UUID
      id_curso: UUID
      titulo_leccion: str
      descripcion_leccion: str
@@ -14,8 +13,7 @@ class  leccionCreate(BaseModel):
 
 
 class LeccionUpdate(BaseModel):
-    id_usuario_creacion: Optional[UUID] = None
-    id_leccion: Optional[UUID] = None
+    id_curso: Optional[UUID] = None
     titulo_leccion: Optional[str] = None
     descripcion_leccion: Optional[str] = None
     orden: Optional[int] = None
@@ -23,8 +21,7 @@ class LeccionUpdate(BaseModel):
 
 class LeccionResponse(BaseModel):
     
-    id_usuario:UUID
-    id_usuario_creacion: UUID
+    id_curso:UUID
     id_leccion: UUID
     titulo_leccion: str = None
     descripcion_leccion: str | None = None
