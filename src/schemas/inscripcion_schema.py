@@ -1,6 +1,7 @@
 from datetime import datetime
 from typing import Optional
 from uuid import UUID
+from src.entities.inscripcion import EstadoInscripcion
 
 from pydantic import BaseModel, ConfigDict
 
@@ -16,6 +17,7 @@ class InscripcionUpdate(BaseModel):
     estado_inscripcion: Optional[str] = None
 
 class InscripcionResponse(BaseModel):
+    id_inscripcion: UUID
     id_curso: UUID
     id_usuario_inscrito: UUID
     estado_inscripcion: str = None

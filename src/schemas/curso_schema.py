@@ -20,6 +20,7 @@ class CursoUpdate(BaseModel):
     descripcion_curso: Optional[str] = None
 
 class CursoResponse(BaseModel):
+    id_curso: UUID
     id_categoria: UUID
     nombre_curso: str
     duracion_horas: int
