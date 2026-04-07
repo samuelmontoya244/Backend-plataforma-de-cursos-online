@@ -6,24 +6,23 @@ from fastapi import APIRouter, HTTPException, status
 from .deps import DbSession
 
 from src.services import pago as services_pago
+from src.schemas.response_schema import RespuestaAPI
 from src.schemas.pago_schema import (
     PagoCreate,
     PagoUpdate,
-    PagoRead,
     PagoResponse,
-    RespuestaAPI
 )
 
 router = APIRouter(prefix="/pago", tags=["pagos"])
 
 
-@router.get("", response_model=List[PagoRead])
-def listar_pagos(db: DbSession, skip: int = 0, limit: int = 100) -> List[PagoRead]:
+@router.get("", response_model=List[PagoResponse])
+def listar_pagos(db: DbSession, skip: int = 0, limit: int = 100) -> List[PagoResponse]:
     return services_pago.listar(db, skip=skip, limit=limit)
 
 
-@router.get("/{id_pago}", response_model=PagoRead)
-def obtener_pago(id_pago: UUID, db: DbSession) -> PagoRead:
+@router.get("/{id_pago}", response_model=PagoResponse)
+def obtener_pago(id_pago: UUID, db: DbSession) -> PagoResponse:
     db_pago = services_pago.obtener_por_id(id_pago)
     if not db_pago:
         raise HTTPException(
@@ -32,7 +31,7 @@ def obtener_pago(id_pago: UUID, db: DbSession) -> PagoRead:
     return db_pago
 
 
-@router.post("", response_model=PagoRead, status_code=status.HTTP_201_CREATED)
+@router.post("", response_model=PagoResponse, status_code=status.HTTP_201_CREATED)
 def crear_pago(dato: PagoCreate):
 
     try:
@@ -53,7 +52,7 @@ def crear_pago(dato: PagoCreate):
         )
 
 
-@router.put("/{id_pago}", response_model=PagoRead)
+@router.put("/{id_pago}", response_model=PagoResponse)
 def actualizar_pago(id_pago: UUID, dato: PagoUpdate, db: DbSession):
 
     pago = services_pago.actualizar(

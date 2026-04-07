@@ -21,17 +21,6 @@ class PagoUpdate(BaseModel):
     estado_pago: Optional[str] = None
     metodo_pago: Optional[str] = None
 
-
-class PagoRead(BaseModel):
-    model_config = ConfigDict(from_attributes=True)
-
-    id_usuario:UUID
-    id_usuario_creacion: UUID
-    id_curso: UUID 
-    monto: float = None
-    estado_pago: str = None
-    metodo_pago: str = None
-
 class PagoResponse(BaseModel):
     id_usuario:UUID
     id_usuario_creacion: UUID
@@ -44,9 +33,3 @@ class PagoResponse(BaseModel):
 
     class Config:
         from_attributes = True
-
-# Modelos de respuesta para la API
-class RespuestaAPI(BaseModel):
-    mensaje: str
-    exito: bool = True
-    datos: Optional[dict] = None

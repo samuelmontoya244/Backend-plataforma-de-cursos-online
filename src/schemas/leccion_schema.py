@@ -19,20 +19,7 @@ class LeccionUpdate(BaseModel):
     titulo_leccion: Optional[str] = None
     descripcion_leccion: Optional[str] = None
     orden: Optional[int] = None
-    duracion_horas: Optional[int] = None
-
-
-class LeccionRead(BaseModel):
-    model_config = ConfigDict(from_attributes=True)
-
-    id_usuario:UUID
-    id_usuario_creacion: UUID
-    id_leccion: UUID
-    titulo_leccion: str = None
-    descripcion_leccion: str | None = None
-    orden: int = None
-    duracion_horas: int = None
- 
+    duracion_horas: Optional[int] = None 
 
 class LeccionResponse(BaseModel):
     
@@ -49,9 +36,3 @@ class LeccionResponse(BaseModel):
 
     class Config:
         from_attributes = True
-
-# Modelos de respuesta para la API
-class RespuestaAPI(BaseModel):
-    mensaje: str
-    exito: bool = True
-    datos: Optional[dict] = None
