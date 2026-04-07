@@ -17,14 +17,14 @@ router = APIRouter(prefix="/lecciones", tags=["lecciones"])
 
 
 @router.get("", response_model=List[LeccionResponse])
-def listar_lecciones(db: DbSession, skip: int = 0, limit: int = 100) -> List[LeccionResponse]:
-    return services_leccion.listar(db, skip=skip, limit=limit)
-
+def listar_lecciones(db: DbSession, skip: int = 0, limit: int = 100):
+    lecion = services_leccion.listar(db, skip=skip, limit=limit)
+    return lecion
 
 
 @router.get("/{id_leccion}", response_model=LeccionResponse)
 def obtener_leccion(id_leccion: UUID, db: DbSession) -> LeccionResponse:
-    db_leccion = services_leccion.obtener_por_id(id_leccion)
+    db_leccion = services_leccion.obtener_por_id(db, id_leccion)
     if not db_leccion:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail=f"La lección con ID {id_leccion} no existe en la base de datos"
@@ -33,10 +33,11 @@ def obtener_leccion(id_leccion: UUID, db: DbSession) -> LeccionResponse:
 
 
 @router.post("", response_model=LeccionResponse, status_code=status.HTTP_201_CREATED)
-def crear_leccion(dato: LeccionCreate):
+def crear_leccion(db: DbSession, dato: LeccionCreate):
 
     try:
         leccion = services_leccion.crear(
+            db,
             id_usuario_creacion=dato.id_usuario_creacion,
             id_curso=dato.id_curso,
             titulo_leccion=dato.titulo_leccion,
@@ -54,9 +55,10 @@ def crear_leccion(dato: LeccionCreate):
 
 
 @router.put("/{id_leccion}", response_model=LeccionResponse)
-def actualizar_leccion(id_leccion: UUID, dato: LeccionUpdate, db: DbSession):
+def actualizar_leccion(db: DbSession, id_leccion: UUID, dato: LeccionUpdate):
 
     leccion = services_leccion.actualizar(
+        db,
         id_leccion,
         **dato.model_dump(exclude_unset=True)
     )
@@ -71,16 +73,16 @@ def actualizar_leccion(id_leccion: UUID, dato: LeccionUpdate, db: DbSession):
 
 
 @router.delete("/{id_leccion}", response_model=RespuestaAPI)
-def eliminar_leccion(id_leccion: UUID, db: DbSession) -> None:
+def eliminar_leccion(db: DbSession, id_leccion: UUID) -> None:
     try:
         # Verificar que el usuario existe
-        usuario_existente = services_leccion.obtener_por_id(id_leccion)
+        usuario_existente = services_leccion.obtener_por_id(db, id_leccion)
         if not usuario_existente:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND, detail="Lección no encontrada"
             )
 
-        eliminado = services_leccion.eliminar(id_leccion=id_leccion)
+        eliminado = services_leccion.eliminar(db, id_leccion=id_leccion)
         if eliminado:
             return RespuestaAPI(mensaje="Lección eliminada exitosamente", exito=True)
         else:

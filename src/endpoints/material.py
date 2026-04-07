@@ -17,13 +17,14 @@ router = APIRouter(prefix="/material", tags=["materiales"])
 
 
 @router.get("", response_model=List[MaterialResponse])
-def listar_materiales(db: DbSession, skip: int = 0, limit: int = 100) -> List[MaterialResponse]:
-    return services_material.listar(db, skip=skip, limit=limit)
+def listar_materiales(db: DbSession, skip: int = 0, limit: int = 100):
+    material = services_material.listar(db, skip=skip, limit=limit)
+    return material
 
 
 @router.get("/{id_material}", response_model=MaterialResponse)
 def obtener_material(id_material: UUID, db: DbSession) -> MaterialResponse:
-    db_material = services_material.obtener_por_id(id_material)
+    db_material = services_material.obtener_por_id(db, id_material)
     if not db_material:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail=f"El material con ID {id_material} no existe en la base de datos"
@@ -32,10 +33,11 @@ def obtener_material(id_material: UUID, db: DbSession) -> MaterialResponse:
 
 
 @router.post("", response_model=MaterialResponse, status_code=status.HTTP_201_CREATED)
-def crear_material(dato: MaterialCreate):
+def crear_material(db: DbSession, dato: MaterialCreate):
 
     try:
         material = services_material.crear(
+            db,
             id_usuario_creacion=dato.id_usuario_creacion,
             id_leccion=dato.id_leccion,
             titulo_material=dato.titulo_material,
@@ -55,6 +57,7 @@ def crear_material(dato: MaterialCreate):
 def actualizar_material(id_material: UUID, dato: MaterialUpdate, db: DbSession):
 
     material = services_material.actualizar(
+        db,
         id_material,
         **dato.model_dump(exclude_unset=True)
     )
@@ -69,16 +72,16 @@ def actualizar_material(id_material: UUID, dato: MaterialUpdate, db: DbSession):
 
 
 @router.delete("/{id_material}", response_model=RespuestaAPI)
-def eliminar_material(id_material: UUID, db: DbSession) -> None:
+def eliminar_material(db: DbSession, id_material: UUID) -> None:
     try:
         # Verificar que el usuario existe
-        usuario_existente = services_material.obtener_por_id(id_material)
+        usuario_existente = services_material.obtener_por_id(db, id_material)
         if not usuario_existente:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND, detail="Material no encontrado"
             )
 
-        eliminado = services_material.eliminar(id_material=id_material)
+        eliminado = services_material.eliminar(db,  id_material=id_material)
         if eliminado:
             return RespuestaAPI(mensaje="Material eliminado exitosamente", exito=True)
         else:
