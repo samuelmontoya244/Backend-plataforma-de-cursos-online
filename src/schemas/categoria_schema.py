@@ -6,6 +6,7 @@ from pydantic import BaseModel, ConfigDict
 
 class CategoriaCreate(BaseModel):
     nombre_categoria: str
+    id_usuario_creacion: UUID
 
 
 class CategoriaUpdate(BaseModel):
