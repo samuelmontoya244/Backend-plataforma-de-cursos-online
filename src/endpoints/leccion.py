@@ -6,25 +6,24 @@ from fastapi import APIRouter, HTTPException, status
 from .deps import DbSession
 
 from src.services import leccion as services_leccion
+from src.schemas.response_schema import RespuestaAPI
 from src.schemas.leccion_schema import (
     LeccionCreate,
     LeccionUpdate,
-    LeccionRead,
     LeccionResponse,
-    RespuestaAPI
 )
 
 router = APIRouter(prefix="/lecciones", tags=["lecciones"])
 
 
-@router.get("", response_model=List[LeccionRead])
-def listar_lecciones(db: DbSession, skip: int = 0, limit: int = 100) -> List[LeccionRead]:
+@router.get("", response_model=List[LeccionResponse])
+def listar_lecciones(db: DbSession, skip: int = 0, limit: int = 100) -> List[LeccionResponse]:
     return services_leccion.listar(db, skip=skip, limit=limit)
 
 
 
-@router.get("/{id_leccion}", response_model=LeccionRead)
-def obtener_leccion(id_leccion: UUID, db: DbSession) -> LeccionRead:
+@router.get("/{id_leccion}", response_model=LeccionResponse)
+def obtener_leccion(id_leccion: UUID, db: DbSession) -> LeccionResponse:
     db_leccion = services_leccion.obtener_por_id(id_leccion)
     if not db_leccion:
         raise HTTPException(
@@ -33,7 +32,7 @@ def obtener_leccion(id_leccion: UUID, db: DbSession) -> LeccionRead:
     return db_leccion
 
 
-@router.post("", response_model=LeccionRead, status_code=status.HTTP_201_CREATED)
+@router.post("", response_model=LeccionResponse, status_code=status.HTTP_201_CREATED)
 def crear_leccion(dato: LeccionCreate):
 
     try:
@@ -54,7 +53,7 @@ def crear_leccion(dato: LeccionCreate):
         )
 
 
-@router.put("/{id_leccion}", response_model=LeccionRead)
+@router.put("/{id_leccion}", response_model=LeccionResponse)
 def actualizar_leccion(id_leccion: UUID, dato: LeccionUpdate, db: DbSession):
 
     leccion = services_leccion.actualizar(

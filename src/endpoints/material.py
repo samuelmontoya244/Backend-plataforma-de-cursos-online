@@ -6,24 +6,23 @@ from fastapi import APIRouter, HTTPException, status
 from .deps import DbSession
 
 from src.services import material as services_material
+from src.schemas.response_schema import RespuestaAPI
 from src.schemas.material_schema import (
     MaterialCreate,
     MaterialUpdate,
-    MaterialRead,
     MaterialResponse,
-    RespuestaAPI
 )
 
 router = APIRouter(prefix="/material", tags=["materiales"])
 
 
-@router.get("", response_model=List[MaterialRead])
-def listar_materiales(db: DbSession, skip: int = 0, limit: int = 100) -> List[MaterialRead]:
+@router.get("", response_model=List[MaterialResponse])
+def listar_materiales(db: DbSession, skip: int = 0, limit: int = 100) -> List[MaterialResponse]:
     return services_material.listar(db, skip=skip, limit=limit)
 
 
-@router.get("/{id_material}", response_model=MaterialRead)
-def obtener_material(id_material: UUID, db: DbSession) -> MaterialRead:
+@router.get("/{id_material}", response_model=MaterialResponse)
+def obtener_material(id_material: UUID, db: DbSession) -> MaterialResponse:
     db_material = services_material.obtener_por_id(id_material)
     if not db_material:
         raise HTTPException(
@@ -32,7 +31,7 @@ def obtener_material(id_material: UUID, db: DbSession) -> MaterialRead:
     return db_material
 
 
-@router.post("", response_model=MaterialRead, status_code=status.HTTP_201_CREATED)
+@router.post("", response_model=MaterialResponse, status_code=status.HTTP_201_CREATED)
 def crear_material(dato: MaterialCreate):
 
     try:
@@ -52,7 +51,7 @@ def crear_material(dato: MaterialCreate):
         )
 
 
-@router.put("/{id_material}", response_model=MaterialRead)
+@router.put("/{id_material}", response_model=MaterialResponse)
 def actualizar_material(id_material: UUID, dato: MaterialUpdate, db: DbSession):
 
     material = services_material.actualizar(
