@@ -16,7 +16,7 @@ def crear(
         .filter(Categoria.nombre_categoria == nombre_categoria.strip())
         .first()
     )
-    categoria_existente = db.query(Categoria).filter(Categoria.nombre_curso == nombre_categoria.strip()).first()
+    
     if categoria_existente:
         raise ValueError("La categoría ya existe")
 
