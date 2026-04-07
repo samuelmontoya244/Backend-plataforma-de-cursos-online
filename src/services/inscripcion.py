@@ -1,16 +1,15 @@
 from typing import List, Optional
 from uuid import UUID
 
-from src.database.config import SessionLocal
+from sqlalchemy.orm import Session
 from src.entities.inscripcion import Inscripcion  
 from src.entities.inscripcion import EstadoInscripcion
 from src.services import curso as curso_services
 from src.entities.certificado import Certificado  
 
-db = SessionLocal()
 
 def obtener_inscripcion_activa(
-    id_usuario_inscrito: UUID, id_curso: UUID
+    db: Session, id_usuario_inscrito: UUID, id_curso: UUID
 ) -> Optional[Inscripcion]:
     return (
         db.query(Inscripcion)
@@ -23,6 +22,7 @@ def obtener_inscripcion_activa(
     )
 
 def crear(
+    db: Session,
     id_curso: UUID,
     id_usuario_inscrito: UUID,
     id_usuario_creacion: UUID,
@@ -31,11 +31,11 @@ def crear(
     if estado_inscripcion is None:
         estado_inscripcion = EstadoInscripcion.PENDIENTE.value
 
-    curso = curso_services.obtener_por_id(id_curso)
+    curso = curso_services.obtener_por_id(db, id_curso)
     if not curso:
         raise ValueError("El curso no existe")
     
-    existente_inscripcion = obtener_inscripcion_activa(id_usuario_inscrito, id_curso)
+    existente_inscripcion = obtener_inscripcion_activa(db, id_usuario_inscrito, id_curso)
     if existente_inscripcion:
         raise ValueError("El usuario ya está inscrito en este curso")
     
@@ -50,17 +50,17 @@ def crear(
     db.refresh(nueva_inscripcion)
     return nueva_inscripcion
 
-def obtener_por_id(id_inscripcion: UUID) -> Optional[Inscripcion]:
+def obtener_por_id(db: Session, id_inscripcion: UUID) -> Optional[Inscripcion]:
     return (
         db.query(Inscripcion)
         .filter(Inscripcion.id_inscripcion == id_inscripcion)
         .first()
     )
 
-def obtener_todos() -> List[Inscripcion]:
-    return db.query(Inscripcion).all()
+def obtener_todos(db: Session, skip: int = 0, limit: int = 100) -> List[Inscripcion]:
+    return db.query(Inscripcion).offset(skip).limit(limit).all()
 
-def obtener_por_usuario(id_usuario: UUID) -> List[Inscripcion]:
+def obtener_por_usuario(db: Session, id_usuario: UUID) -> List[Inscripcion]:
     return (
         db.query(Inscripcion)
         .filter(Inscripcion.id_usuario_inscrito == id_usuario)
@@ -68,12 +68,13 @@ def obtener_por_usuario(id_usuario: UUID) -> List[Inscripcion]:
     )
 
 def actualizar(
+    db: Session,
     id_inscripcion: UUID,
     id_usuario_edita: UUID,
     **kwargs: dict,
 ) -> Optional[Inscripcion]:
     insc = obtener_por_id(
-        id_inscripcion
+        db, id_inscripcion
     )  
     if not insc:
         return None
@@ -85,7 +86,7 @@ def actualizar(
     db.refresh(insc)
     return insc
 
-def eliminar(id_inscripcion: UUID) -> bool:
+def eliminar(db: Session, id_inscripcion: UUID) -> bool:
     certificado = db.query(Certificado).filter(
         Certificado.id_inscripcion == id_inscripcion
     ).first()
@@ -93,7 +94,7 @@ def eliminar(id_inscripcion: UUID) -> bool:
     if certificado:
         raise ValueError("No se puede eliminar la inscripción porque tiene un certificado asociado")
     
-    inscripcion = obtener_por_id(id_inscripcion)
+    inscripcion = obtener_por_id(db, id_inscripcion)
     if not inscripcion:
         return False
     db.delete(inscripcion)
@@ -101,7 +102,7 @@ def eliminar(id_inscripcion: UUID) -> bool:
     return True
 
 def obtener_por_usuario_y_curso(
-    id_usuario: UUID, id_curso: UUID
+    db: Session, id_usuario: UUID, id_curso: UUID
 ) -> Optional[Inscripcion]:
     return (
         db.query(Inscripcion)

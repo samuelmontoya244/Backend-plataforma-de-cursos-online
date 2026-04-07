@@ -1,4 +1,5 @@
 """
+<<<<<<< Updated upstream
 Punto de entrada: inicio de sesión (o creación del primer usuario)
 y menú CRUD para Categoría, Producto y Pedido.
 """
@@ -953,7 +954,30 @@ def main() -> None:
 
         else:
             print("Opción no válida.")
+=======
+Arranca la API FastAPI (uvicorn).rando e
 
+  python main.py
+
+Documentación interactiva: http://127.0.0.1:8000/docs
+
+Para crear tablas en la base de datos, usa: python init_db.py
+"""
+
+import uvicorn
+>>>>>>> Stashed changes
+
+from src.app import app
 
 if __name__ == "__main__":
+<<<<<<< Updated upstream
     main()
+=======
+    # reload exige el string de importación; `app` sigue disponible para tests / ASGI
+    uvicorn.run(
+        "src.app:app",
+        host="0.0.0.0",
+        port=8000,
+        reload=True,
+    )
+>>>>>>> Stashed changes

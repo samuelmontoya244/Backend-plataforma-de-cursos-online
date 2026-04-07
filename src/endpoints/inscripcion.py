@@ -18,14 +18,14 @@ router = APIRouter(prefix="/inscripciones", tags=["inscripciones"])
 
 
 @router.get("", response_model=List[InscripcionResponse])
-def listar_inscripciones(db: DbSession):
-    inscripciones = services_inscripcion.obtener_todos()
+def listar_inscripciones(db: DbSession, skip: int = 0, limit: int = 100):
+    inscripciones = services_inscripcion.obtener_todos(db, skip, limit)
     return inscripciones
 
 
 @router.get("/{id_inscripcion}", response_model=InscripcionRead)
-def obtener_inscripcion(id_inscripcion: UUID, db: DbSession) -> InscripcionRead:
-    db_inscripcion = services_inscripcion.obtener_por_id(id_inscripcion)
+def obtener_inscripcion(db: DbSession, id_inscripcion: UUID) -> InscripcionRead:
+    db_inscripcion = services_inscripcion.obtener_por_id(db, id_inscripcion)
     if not db_inscripcion:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail=f"La inscripción con ID {id_inscripcion} no existe en la base de datos"
@@ -34,10 +34,11 @@ def obtener_inscripcion(id_inscripcion: UUID, db: DbSession) -> InscripcionRead:
 
 
 @router.post("", response_model=InscripcionRead, status_code=status.HTTP_201_CREATED)
-def crear_inscripcion(dato: InscripcionCreate):
+def crear_inscripcion(db: DbSession, dato: InscripcionCreate):
 
     try:
         inscripcion = services_inscripcion.crear(
+            db,
             id_curso=dato.id_curso,
             id_usuario_inscrito=dato.id_usuario_inscrito,
             id_usuario_creacion=dato.id_usuario_creacion,
@@ -53,9 +54,10 @@ def crear_inscripcion(dato: InscripcionCreate):
 
 
 @router.put("/{id_inscripcion}", response_model=InscripcionRead)
-def actualizar_inscripcion(id_inscripcion: UUID, dato: InscripcionUpdate, db: DbSession):
+def actualizar_inscripcion(db: DbSession, id_inscripcion: UUID, dato: InscripcionUpdate):
 
     inscripcion = services_inscripcion.actualizar(
+        db,
         id_inscripcion,
         **dato.model_dump(exclude_unset=True)
     )
@@ -70,16 +72,16 @@ def actualizar_inscripcion(id_inscripcion: UUID, dato: InscripcionUpdate, db: Db
 
 
 @router.delete("/{id_inscripcion}", response_model=RespuestaAPI)
-def eliminar_inscripcion(id_inscripcion: UUID, db: DbSession) -> None:
+def eliminar_inscripcion(db: DbSession, id_inscripcion: UUID) -> None:
     try:
         # Verificar que el usuario existe
-        usuario_existente = services_inscripcion.obtener_por_id(id_inscripcion)
-        if not usuario_existente:
+        inscripcion_existente = services_inscripcion.obtener_por_id(db, id_inscripcion)
+        if not inscripcion_existente:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND, detail="Inscripción no encontrada"
             )
 
-        eliminado = services_inscripcion.eliminar(id_inscripcion)
+        eliminado = services_inscripcion.eliminar(db, id_inscripcion)
         if eliminado:
             return RespuestaAPI(mensaje="Inscripción eliminada exitosamente", exito=True)
         else:

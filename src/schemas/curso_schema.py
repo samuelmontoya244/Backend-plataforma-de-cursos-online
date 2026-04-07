@@ -10,7 +10,7 @@ class CursoCreate(BaseModel):
     duracion_horas: int
     estado_curso: str
     id_usuario_creacion: UUID
-    descripcion_curso: str | None = None
+    descripcion_curso: Optional[str] = None
 
 
 class CursoUpdate(BaseModel):
@@ -25,6 +25,7 @@ class CursoUpdate(BaseModel):
 class CursoRead(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
+    id_curso: UUID
     id_categoria: UUID
     nombre_curso: str
     duracion_horas: int
@@ -33,12 +34,13 @@ class CursoRead(BaseModel):
     descripcion_curso: str | None = None
 
 class CursoResponse(BaseModel):
+    id_curso: UUID
     id_categoria: UUID
     nombre_curso: str
     duracion_horas: int
     estado_curso: str
     id_usuario_creacion: UUID
-    descripcion_curso: str | None = None
+    descripcion_curso: str
     fecha_creacion: datetime
     fecha_edicion: Optional[datetime] = None
 
