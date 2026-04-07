@@ -1,4 +1,5 @@
-from typing import Optional, List
+from datetime import datetime
+from typing import Optional
 from uuid import UUID
 
 from pydantic import BaseModel, EmailStr, ConfigDict
@@ -34,6 +35,22 @@ class UsuarioRead(BaseModel):
     rol: str
     activo: bool
 
-class RespuestaUsuarios(BaseModel):
-    message: str
-    data: List[UsuarioRead]
+class UsuarioResponse(BaseModel):
+    id_usuario: UUID
+    nombre_usuario: str
+    activo: bool
+    fecha_creacion: datetime
+    fecha_edicion: Optional[datetime] = None
+
+    class Config:
+        from_attributes = True
+
+class UsuarioLogin(BaseModel):
+    nombre_usuario: str
+    contraseña: str
+
+# Modelos de respuesta para la API
+class RespuestaAPI(BaseModel):
+    mensaje: str
+    exito: bool = True
+    datos: Optional[dict] = None
