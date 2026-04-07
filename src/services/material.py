@@ -1,19 +1,28 @@
 from typing import List, Optional
 from uuid import UUID
 
-from src.database.config import SessionLocal
+from sqlalchemy.orm import Session
 from src.entities.Material import Material
+from src.services import leccion as leccion_services
 
-db = SessionLocal()
+
 
 
 def crear(
+    db: Session,
     id_usuario_creacion: UUID,
     id_leccion: UUID,
-    titulo_material: str,
-    tipo_material: str,
-    URL_archivo: str,
+    titulo_material: str = None,
+    tipo_material: str = None,
+    URL_archivo: str = None,
 ) -> Material:
+    
+    leccion = leccion_services.obtener_por_id(db, id_leccion)
+    if not leccion:
+        raise ValueError("La lección no existe")
+    
+    
+
     material = Material(
         id_usuario_creacion=id_usuario_creacion,
         id_leccion=id_leccion,
@@ -27,24 +36,25 @@ def crear(
     return material
 
 
-def obtener_por_id(id_material: UUID) -> Optional[Material]:
-    return db.query(Material).filter(Material.id_material == id_material).first()
+def obtener_por_id(db: Session, id_material: UUID) -> Optional[Material]:
+    return (db.query(Material).filter(Material.id_material == id_material).first())
 
 
-def obtener_todos() -> List[Material]:
-    return db.query(Material).all()
+def obtener_todos(db: Session, skip: int = 0, limit: int = 100) -> List[Material]:
+    return db.query(Material).offset(skip).limit(limit).all()
 
 
-def obtener_por_usuario(id_usuario: UUID) -> List[Material]:
-    return db.query(Material).filter(Material.id_usuario == id_usuario).all()
+def obtener_por_usuario(db: Session, id_usuario: UUID) -> List[Material]:
+    return (db.query(Material).filter(Material.id_usuario == id_usuario).all())
 
 
 def actualizar(
+    db: Session,
     id_material: UUID,
     id_usuario_edita: UUID,
     **kwargs: dict,
 ) -> Optional[Material]:
-    material = obtener_por_id(id_material)
+    material = obtener_por_id(db, id_material)
     if not material:
         return None
     for key, value in kwargs.items():
@@ -56,8 +66,16 @@ def actualizar(
     return material
 
 
-def eliminar(id_material: UUID) -> bool:
-    material = obtener_por_id(id_material)
+def eliminar(db: Session, id_Material: UUID) -> bool:
+    leccion = db.query(leccion).filter(
+        leccion.id_Material == id_Material
+    ).first()
+
+    if leccion:
+        raise ValueError("No se puede eliminar el material porque está asociado a una lección")
+    
+    material = obtener_por_id(db, id_Material)
+
     if not material:
         return False
     db.delete(material)
