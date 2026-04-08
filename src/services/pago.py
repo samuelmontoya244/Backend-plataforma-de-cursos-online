@@ -44,11 +44,12 @@ def crear(
 
     if estado_pago == "COMPLETADO":
         inscripcion = services_inscripcion.obtener_por_usuario_y_curso(
-            id_usuario, id_curso
+            db, id_usuario, id_curso  # <--- Faltaba pasar 'db' al principio
         )
 
         if inscripcion:
             services_inscripcion.actualizar(
+                db,  
                 id_inscripcion=inscripcion.id_inscripcion,
                 id_usuario_edita=id_usuario_creacion,
                 estado_inscripcion=EstadoInscripcion.ACTIVA.value,
@@ -74,7 +75,7 @@ def actualizar(
     id_usuario_edita: UUID,
     **kwargs: dict,
 ) -> Optional[Pago]:
-    pago = obtener_por_id(id_pago)
+    pago = obtener_por_id(db, id_pago)
     if not pago:
         return None
     for key, value in kwargs.items():
@@ -87,7 +88,7 @@ def actualizar(
 
 
 def eliminar(db, id_pago: UUID) -> bool:
-    pago = obtener_por_id(id_pago)
+    pago = obtener_por_id(db, id_pago)
     if not pago:
         return False
     db.delete(pago)

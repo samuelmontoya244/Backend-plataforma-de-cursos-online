@@ -8,12 +8,12 @@ from fastapi import FastAPI
 
 from src.database.config import create_tables
 from src.endpoints import (
-    #usuario,
-    #inscripcion,
-    #curso,
-    #leccion,
-    #material,
-    #pago,
+    usuario,
+    inscripcion,
+    curso,
+    leccion,
+    material,
+    pago,
     #certificado,
     #evaluacion,
     #categoria
@@ -32,12 +32,12 @@ app = FastAPI(
     lifespan=lifespan
 )
 
-#app.include_router(usuario.router)
-#app.include_router(inscripcion.router)
-#app.include_router(curso.router)
-#app.include_router(leccion.router)
-#app.include_router(material.router)
-#app.include_router(pago.router)
+app.include_router(usuario.router)
+app.include_router(inscripcion.router)
+app.include_router(curso.router)
+app.include_router(leccion.router)
+app.include_router(material.router)
+app.include_router(pago.router)
 #app.include_router(certificado.router)
 #app.include_router(evaluacion.router)
 #app.include_router(categoria.router)
