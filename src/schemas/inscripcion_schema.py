@@ -8,12 +8,14 @@ from pydantic import BaseModel, ConfigDict
 class InscripcionCreate(BaseModel):
     id_curso: UUID
     id_usuario_inscrito: UUID
+    id_usuario_creacion: UUID
     estado_inscripcion: str = None
 
 
 class InscripcionUpdate(BaseModel):
     id_curso: Optional[UUID] = None
     id_usuario_inscrito: Optional[UUID] = None
+    id_usuario_edita: UUID
     estado_inscripcion: Optional[str] = None
 
 class InscripcionResponse(BaseModel):
