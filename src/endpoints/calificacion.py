@@ -13,7 +13,7 @@ from src.schemas.calificacion_schema import (
     CalificacionResponse,
 )
 
-router = APIRouter(prefix="/lecciones", tags=["lecciones"])
+router = APIRouter(prefix="/Calificaciones", tags=["Calificaciones"])
 
 
 @router.get("", response_model=List[CalificacionResponse])
