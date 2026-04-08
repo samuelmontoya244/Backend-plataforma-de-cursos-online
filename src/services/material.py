@@ -66,15 +66,15 @@ def actualizar(
     return material
 
 
-def eliminar(db: Session, id_Material: UUID) -> bool:
-    leccion = db.query(leccion).filter(
-        leccion.id_Material == id_Material
+def eliminar(db: Session, id_material: UUID) -> bool:
+    material = db.query(Material).filter(
+        Material.id_material == id_material
     ).first()
 
-    if leccion:
+    if material is None:
         raise ValueError("No se puede eliminar el material porque está asociado a una lección")
     
-    material = obtener_por_id(db, id_Material)
+    material = obtener_por_id(db, id_material)
 
     if not material:
         return False

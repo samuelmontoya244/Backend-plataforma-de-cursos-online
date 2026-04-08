@@ -1,16 +1,16 @@
 from typing import List, Optional
 from uuid import UUID
 
-from src.database.config import SessionLocal
+from sqlalchemy.orm import Session
 from src.entities.calificacion import Calificacion
 from src.entities.inscripcion import Inscripcion, EstadoInscripcion
 
-db = SessionLocal()
+
 
 TOTAL_EVALUACIONES_REQUERIDAS = 4
 NOTA_MINIMA_APROBACION = 3.0
 
-def _actualizar_estado_inscripcion(id_inscripcion: UUID) -> None:
+def _actualizar_estado_inscripcion(id_inscripcion: UUID, db: Session) -> None:
     """
     Verifica si ya hay 4 calificaciones para la inscripción.
     Si las hay, suma las notas y actualiza el estado de la inscripción.
@@ -45,6 +45,7 @@ def _actualizar_estado_inscripcion(id_inscripcion: UUID) -> None:
     db.commit()
 
 def crear(
+    db: Session,
     id_inscripcion: UUID,
     id_evaluacion: UUID,
     Nota: float,
@@ -82,6 +83,7 @@ def crear(
     db.add(calificacion)
     db.commit()
     db.refresh(calificacion)
+    
 
     
     total_tras_crear = total_actuales + 1
@@ -90,7 +92,7 @@ def crear(
 
     return calificacion
 
-def obtener_por_id(
+def obtener_por_id(db,
     id_inscripcion: UUID, id_evaluacion: UUID
 ) -> Optional[Calificacion]:
     return (
@@ -102,10 +104,10 @@ def obtener_por_id(
         .first()
     )
 
-def obtener_todos() -> List[Calificacion]:
-    return db.query(Calificacion).all()
+def obtener_todos(db, skip: int = 0, limit: int = 100) -> List[Calificacion]:
+    return db.query(Calificacion).offset(skip).limit(limit).all()
 
-def obtener_por_inscripcion(id_inscripcion: UUID) -> List[Calificacion]:
+def obtener_por_inscripcion(db, id_inscripcion: UUID) -> List[Calificacion]:
     return (
         db.query(Calificacion)
         .filter(Calificacion.id_inscripcion == id_inscripcion)
@@ -113,12 +115,12 @@ def obtener_por_inscripcion(id_inscripcion: UUID) -> List[Calificacion]:
     )
 
 def actualizar(
-    id_inscripcion: UUID,
-    id_evaluacion: UUID,
+    db: Session,
+    id_calificacion: UUID,
     id_usuario_edita: UUID,
     **kwargs: dict,
 ) -> Optional[Calificacion]:
-    calificacion = obtener_por_id(id_inscripcion, id_evaluacion)
+    calificacion = obtener_por_id(db, id_calificacion)
     if not calificacion:
         return None
 
@@ -141,7 +143,7 @@ def actualizar(
 
     return calificacion
 
-def eliminar(id_inscripcion: UUID, id_evaluacion: UUID) -> bool:
+def eliminar(id_inscripcion: UUID, id_evaluacion: UUID, db: Session) -> bool:
     calificacion = obtener_por_id(id_inscripcion, id_evaluacion)
     if not calificacion:
         return False

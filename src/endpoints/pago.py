@@ -18,7 +18,7 @@ router = APIRouter(prefix="/pago", tags=["pagos"])
 
 @router.get("", response_model=List[PagoResponse])
 def listar_pagos(db: DbSession, skip: int = 0, limit: int = 100) -> List[PagoResponse]:
-    pago = services_pago.listar(db, skip=skip, limit=limit)
+    pago = services_pago.obtener_todos(db, skip=skip, limit=limit)
     return pago
 
 @router.get("/{id_pago}", response_model=PagoResponse)
@@ -54,13 +54,18 @@ def crear_pago(db: DbSession, dato: PagoCreate):
 
 
 @router.put("/{id_pago}", response_model=PagoResponse)
-def actualizar_pago(id_pago: UUID, dato: PagoUpdate, db: DbSession):
+def actualizar_pago(db: DbSession, id_pago: UUID, dato: PagoUpdate):
+
+    data = dato.model_dump(exclude_unset=True)
+
+    id_usuario_edita = data.pop("id_usuario_edita", None)
 
     pago = services_pago.actualizar(
         db,
         id_pago,
-        **dato.model_dump(exclude_unset=True)
-    )
+        id_usuario_edita=id_usuario_edita,
+    **data
+)
 
     if not pago:
         raise HTTPException(

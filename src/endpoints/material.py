@@ -18,7 +18,7 @@ router = APIRouter(prefix="/material", tags=["materiales"])
 
 @router.get("", response_model=List[MaterialResponse])
 def listar_materiales(db: DbSession, skip: int = 0, limit: int = 100):
-    material = services_material.listar(db, skip=skip, limit=limit)
+    material = services_material.obtener_todos(db, skip=skip, limit=limit)
     return material
 
 
@@ -59,6 +59,8 @@ def actualizar_material(id_material: UUID, dato: MaterialUpdate, db: DbSession):
     material = services_material.actualizar(
         db,
         id_material,
+        
+        
         **dato.model_dump(exclude_unset=True)
     )
 
