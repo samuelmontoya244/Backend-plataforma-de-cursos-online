@@ -16,7 +16,7 @@ class EvaluacionUpdate(BaseModel):
     id_leccion: Optional[UUID] = None
     nombre_evaluacion: Optional[str] = None
     porcentaje: Optional[float] = None
-    id_usuario_edita: Optional[UUID] = None
+    id_usuario_edita: UUID
 
 
 class EvaluacionResponse(BaseModel):
@@ -24,8 +24,6 @@ class EvaluacionResponse(BaseModel):
     id_leccion: UUID
     nombre_evaluacion: str
     porcentaje: float
-    id_usuario_creacion: UUID
-    id_usuario_edita: Optional[UUID] = None
     fecha_creacion: datetime
     fecha_edicion: Optional[datetime] = None
 

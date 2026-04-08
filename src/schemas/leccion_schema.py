@@ -4,7 +4,7 @@ from uuid import UUID
 
 from pydantic import BaseModel, ConfigDict
 
-class  leccionCreate(BaseModel):
+class  LeccionCreate(BaseModel):
      id_curso: UUID
      titulo_leccion: str
      descripcion_leccion: str
