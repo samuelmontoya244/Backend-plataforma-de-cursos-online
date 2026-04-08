@@ -18,8 +18,8 @@ router = APIRouter(prefix="/lecciones", tags=["lecciones"])
 
 @router.get("", response_model=List[LeccionResponse])
 def listar_lecciones(db: DbSession, skip: int = 0, limit: int = 100):
-    lecion = services_leccion.listar(db, skip=skip, limit=limit)
-    return lecion
+    leccion = services_leccion.obtener_todos(db, skip=skip, limit=limit)
+    return leccion
 
 
 @router.get("/{id_leccion}", response_model=LeccionResponse)

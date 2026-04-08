@@ -9,10 +9,11 @@ class MaterialCreate(BaseModel):
     titulo_material: str
     tipo_material: str
     URL_archivo: str
+    id_usuario_creacion: UUID
 
 
 class MaterialUpdate(BaseModel):
-    id_material: Optional[UUID] = None
+    id_usuario_edita: UUID
     id_leccion: Optional[UUID] = None
     titulo_material: Optional[str] = None
     tipo_material: Optional[str] = None

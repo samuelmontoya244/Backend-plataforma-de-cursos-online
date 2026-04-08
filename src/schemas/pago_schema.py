@@ -10,11 +10,13 @@ class PagoCreate(BaseModel):
     monto: float
     estado_pago: str
     metodo_pago: str
+    id_usuario_creacion: UUID
 
 
 class PagoUpdate(BaseModel):
     id_usuario: Optional[UUID] = None
     id_curso: Optional[UUID] = None
+    id_usuario_edita: UUID
     monto: Optional[float] = None
     estado_pago: Optional[str] = None
     metodo_pago: Optional[str] = None
