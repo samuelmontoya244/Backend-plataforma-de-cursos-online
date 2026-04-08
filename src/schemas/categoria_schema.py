@@ -11,6 +11,7 @@ class CategoriaCreate(BaseModel):
 
 class CategoriaUpdate(BaseModel):
     nombre_categoria: Optional[str] = None
+    id_usuario_edita: UUID
 
 
 class CategoriaRead(BaseModel):
