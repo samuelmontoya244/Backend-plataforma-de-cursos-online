@@ -37,6 +37,7 @@ def crear_inscripcion(db: DbSession, dato: InscripcionCreate):
             db,
             id_curso=dato.id_curso,
             id_usuario_inscrito=dato.id_usuario_inscrito,
+            id_usuario_creacion=dato.id_usuario_creacion,
             estado_inscripcion=dato.estado_inscripcion,
         )
         return inscripcion

@@ -9,12 +9,14 @@ class CursoCreate(BaseModel):
     nombre_curso: str
     duracion_horas: int
     estado_curso: str
-    descripcion_curso: str | None = None
+    id_usuario_creacion: UUID
+    descripcion_curso: Optional[str] = None
 
 
 class CursoUpdate(BaseModel):
     id_categoria: Optional[UUID] = None
     nombre_curso: Optional[str] = None
+    id_usuario_edita: UUID
     duracion_horas: Optional[int] = None
     estado_curso: Optional[str] = None
     descripcion_curso: Optional[str] = None

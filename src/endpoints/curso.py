@@ -38,6 +38,9 @@ def crear_curso(db: DbSession, dato: CursoCreate):
             id_categoria=dato.id_categoria,
             nombre_curso=dato.nombre_curso,
             duracion_horas=dato.duracion_horas,
+            estado_curso=dato.estado_curso,
+            id_usuario_creacion=dato.id_usuario_creacion,
+            descripcion_curso=dato.descripcion_curso
         )
         return curso
 
