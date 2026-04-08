@@ -49,7 +49,7 @@ def obtener_por_id(db: Session, id_leccion: UUID) -> Optional[Leccion]:
         .first()
     )
 
-def obtener_todos(db: Session, skip: int = 0, limit: int = 100) -> List[Leccion]:
+def obtener_todos(db: Session, skip: int = 0, limit: int = 100)-> List[Leccion]:
     return db.query(Leccion).offset(skip).limit(limit).all()
 
 
