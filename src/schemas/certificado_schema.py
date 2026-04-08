@@ -12,14 +12,12 @@ class CertificadoCreate(BaseModel):
 
 class CertificadoUpdate(BaseModel):
     id_inscripcion: Optional[UUID] = None
-    id_usuario_edita: Optional[UUID] = None
+    id_usuario_edita: UUID
 
 
 class CertificadoResponse(BaseModel):
     id_certificado: UUID
     id_inscripcion: UUID
-    id_usuario_creacion: UUID
-    id_usuario_edita: Optional[UUID] = None
     fecha_creacion: datetime
     fecha_edicion: Optional[datetime] = None
 
