@@ -14,9 +14,10 @@ from src.endpoints import (
     leccion,
     material,
     pago,
-    #certificado,
-    #evaluacion,
-    #categoria
+    certificado,
+    evaluacion,
+    categoria,
+    calificacion
 )
 
 @asynccontextmanager
@@ -38,9 +39,10 @@ app.include_router(curso.router)
 app.include_router(leccion.router)
 app.include_router(material.router)
 app.include_router(pago.router)
-#app.include_router(certificado.router)
-#app.include_router(evaluacion.router)
-#app.include_router(categoria.router)
+app.include_router(certificado.router)
+app.include_router(evaluacion.router)
+app.include_router(categoria.router)
+app.include_router(calificacion.router)
 
 @app.get("/")
 def inicio():
