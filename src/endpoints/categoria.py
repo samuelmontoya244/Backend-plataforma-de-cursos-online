@@ -35,7 +35,8 @@ def crear_categoria(db: DbSession, dato: CategoriaCreate):
     try:
         categoria = services_categoria.crear(
             db,
-            nombre_categoria=dato.nombre_categoria 
+            nombre_categoria=dato.nombre_categoria,
+            id_usuario_creacion=dato.id_usuario_creacion
         )
         return categoria
 
