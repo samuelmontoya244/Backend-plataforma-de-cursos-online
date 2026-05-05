@@ -3,7 +3,7 @@ Arranca la API FastAPI (uvicorn).rando e
 
   python main.py
 
-Documentación interactiva: http://127.0.0.1:8000/docs
+Documentación interactiva: http://0.0.0.0:8000/docs
 
 Para crear tablas en la base de datos, usa: python init_db.py
 """
@@ -20,4 +20,3 @@ if __name__ == "__main__":
         port=8000,
         reload=True,
     )
-

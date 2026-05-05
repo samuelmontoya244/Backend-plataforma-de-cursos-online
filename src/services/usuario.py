@@ -3,7 +3,7 @@ CRUD para la entidad Usuario.
 Incluye creación, login (verificación de contraseña) y operaciones básicas.
 """
 
-import hashlib
+import bcrypt
 from typing import List, Optional
 from uuid import UUID
 
@@ -12,7 +12,7 @@ from src.entities.usuario import Usuario
 
 def _hash_contrasena(contrasena: str) -> str:
     """Hashea la contraseña con SHA-256 (para no guardar en claro)."""
-    return hashlib.sha256(contrasena.encode("utf-8")).hexdigest()
+    return bcrypt.hashpw(contrasena.encode(), bcrypt.gensalt()).decode()
 
 def crear(
     db: Session,
@@ -46,6 +46,12 @@ def crear(
     db.refresh(usuario)
     return usuario
 
+def verificar_contrasena(contrasena_plana: str, contrasena_hash: str) -> bool:
+    return bcrypt.checkpw(
+        contrasena_plana.encode(),
+        contrasena_hash.encode()
+    )
+
 def login(db: Session, nombre_usuario: str, contrasena: str) -> Optional[Usuario]:
     """
     Verifica credenciales. Devuelve el Usuario si coincide, None si no.
@@ -53,8 +59,9 @@ def login(db: Session, nombre_usuario: str, contrasena: str) -> Optional[Usuario
     usuario = obtener_por_nombre_usuario(db, nombre_usuario)
     if not usuario or not usuario.activo:
         return None
-    if usuario.contrasena != _hash_contrasena(contrasena):
+    if not verificar_contrasena(contrasena, usuario.contrasena):
         return None
+    
     return usuario
 
 def obtener_por_id(db: Session, id_usuario: UUID) -> Optional[Usuario]:
