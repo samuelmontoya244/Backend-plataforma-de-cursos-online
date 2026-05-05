@@ -1,5 +1,6 @@
 from typing import List
 from uuid import UUID
+from src.utils.jwt_utils import create_token
 
 from fastapi import APIRouter, HTTPException, status
 
@@ -11,6 +12,7 @@ from src.schemas.usuario_schema import (
     UsuarioCreate,
     UsuarioUpdate,
     UsuarioResponse,
+    UsuarioLogin
 )
 
 router = APIRouter(prefix="/usuarios", tags=["usuarios"])
@@ -93,3 +95,23 @@ def eliminar_usuario(db: DbSession, id_usuario: UUID, ) -> None:
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Error al eliminar usuario: {str(e)}",
         )
+    
+@router.post("/login")
+def login_usuario(db: DbSession, data: UsuarioLogin):
+    nombre_usuario = data.nombre_usuario
+    contrasena = data.contrasena
+
+    usuario = services_usuario.login(db, nombre_usuario, contrasena)
+
+    if not usuario:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Credenciales inválidas"
+        )
+
+    token = create_token(str(usuario.id_usuario))
+
+    return {
+        "access_token": token,
+        "token_type": "bearer"
+    }
