@@ -26,6 +26,9 @@ class UsuarioUpdate(BaseModel):
 class UsuarioResponse(BaseModel):
     id_usuario: UUID
     nombre_usuario: str
+    tipo_documento: str
+    documento_identidad: str
+    email: EmailStr
     rol: str
     activo: bool
     fecha_creacion: datetime
@@ -36,4 +39,4 @@ class UsuarioResponse(BaseModel):
 
 class UsuarioLogin(BaseModel):
     nombre_usuario: str
-    contraseña: str
+    contrasena: str

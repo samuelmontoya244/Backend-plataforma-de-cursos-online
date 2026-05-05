@@ -2,21 +2,19 @@ from datetime import datetime
 from typing import Optional
 from uuid import UUID
 
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel
 
 class CursoCreate(BaseModel):
     id_categoria: UUID
     nombre_curso: str
     duracion_horas: int
     estado_curso: str
-    id_usuario_creacion: UUID
     descripcion_curso: Optional[str] = None
 
 
 class CursoUpdate(BaseModel):
     id_categoria: Optional[UUID] = None
     nombre_curso: Optional[str] = None
-    id_usuario_edita: UUID
     duracion_horas: Optional[int] = None
     estado_curso: Optional[str] = None
     descripcion_curso: Optional[str] = None
