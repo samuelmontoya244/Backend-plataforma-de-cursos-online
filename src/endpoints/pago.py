@@ -1,9 +1,8 @@
 from typing import List
 from uuid import UUID
 
-from fastapi import APIRouter, HTTPException, status
-
-from .deps import DbSession
+from fastapi import APIRouter, HTTPException, status, Depends
+from .deps import DbSession, get_current_user_id
 
 from src.services import pago as services_pago
 from src.schemas.response_schema import RespuestaAPI
@@ -26,19 +25,20 @@ def obtener_pago(id_pago: UUID, db: DbSession) -> PagoResponse:
     db_pago = services_pago.obtener_por_id(db, id_pago)
     if not db_pago:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail=f"El pago con ID {id_pago} no existe en la base de datos"
+             status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"El pago con ID {id_pago} no existe en la base de datos",
         )
     return db_pago
 
 
 @router.post("", response_model=PagoResponse, status_code=status.HTTP_201_CREATED)
-def crear_pago(db: DbSession, dato: PagoCreate):
+def crear_pago(db: DbSession, dato: PagoCreate, user_id: str = Depends(get_current_user_id)):
 
     try:
         pago = services_pago.crear(
             db,
             id_usuario=dato.id_usuario,
-            id_usuario_creacion=dato.id_usuario_creacion,
+            id_usuario_creacion=user_id,
             id_curso=dato.id_curso,
             monto=dato.monto,
             estado_pago=dato.estado_pago,
@@ -47,43 +47,41 @@ def crear_pago(db: DbSession, dato: PagoCreate):
         return pago
 
     except ValueError as e:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=str(e)
-        )
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
 
 
 @router.put("/{id_pago}", response_model=PagoResponse)
-def actualizar_pago(db: DbSession, id_pago: UUID, dato: PagoUpdate):
+def actualizar_pago(db: DbSession, id_pago: UUID, dato: PagoUpdate,user_id: str = Depends(get_current_user_id)):
 
     data = dato.model_dump(exclude_unset=True)
 
     id_usuario_edita = data.pop("id_usuario_edita", None)
 
     pago = services_pago.actualizar(
-        db,
-        id_pago,
-        id_usuario_edita=id_usuario_edita,
-    **data
+         db, id_pago, id_usuario_edita=user_id, **dato.model_dump(exclude_unset=True)
 )
 
     if not pago:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Pago no encontrado"
+              status_code=status.HTTP_404_NOT_FOUND, detail="Pago no encontrado"
         )
 
     return pago
 
 
 @router.delete("/{id_pago}", response_model=RespuestaAPI)
-def eliminar_pago(id_pago: UUID, db: DbSession) -> None:
+def eliminar_pago(id_pago: UUID, db: DbSession, user_id: str = Depends(get_current_user_id)) -> None:
     try:
         # Verificar que el usuario existe
-        usuario_existente = services_pago.obtener_por_id(db,id_pago)
-        if not usuario_existente:
+        pago_existente = services_pago.obtener_por_id(db,id_pago)
+        if not pago_existente:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND, detail="Pago no encontrado"
+            )
+        
+        if pago_existente.id_usuario_creacion != UUID(user_id):
+            raise HTTPException(
+                status_code=403, detail="No autorizado para eliminar este pago"
             )
 
         eliminado = services_pago.eliminar(db, id_pago)
