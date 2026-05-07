@@ -1,9 +1,7 @@
 from typing import List
 from uuid import UUID
-
-from fastapi import APIRouter, HTTPException, status
-
-from .deps import DbSession
+from fastapi import APIRouter, HTTPException, status, Depends
+from .deps import DbSession, get_current_user_id
 
 from src.services import leccion as services_leccion
 from src.schemas.response_schema import RespuestaAPI
@@ -27,18 +25,19 @@ def obtener_leccion(id_leccion: UUID, db: DbSession) -> LeccionResponse:
     db_leccion = services_leccion.obtener_por_id(db, id_leccion)
     if not db_leccion:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail=f"La lección con ID {id_leccion} no existe en la base de datos"
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"La lección con ID {id_leccion} no existe en la base de datos",
         )
     return db_leccion
 
 
 @router.post("", response_model=LeccionResponse, status_code=status.HTTP_201_CREATED)
-def crear_leccion(db: DbSession, dato: LeccionCreate):
+def crear_leccion(db: DbSession, dato: LeccionCreate, user_id: str = Depends(get_current_user_id)):
 
     try:
         leccion = services_leccion.crear(
             db,
-            id_usuario_creacion=dato.id_usuario_creacion,
+            id_usuario_creacion=user_id,
             id_curso=dato.id_curso,
             titulo_leccion=dato.titulo_leccion,
             descripcion_leccion=dato.descripcion_leccion,
@@ -48,38 +47,38 @@ def crear_leccion(db: DbSession, dato: LeccionCreate):
         return leccion
 
     except ValueError as e:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=str(e)
-        )
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
 
 
 @router.put("/{id_leccion}", response_model=LeccionResponse)
-def actualizar_leccion(db: DbSession, id_leccion: UUID, dato: LeccionUpdate):
+def actualizar_leccion(db: DbSession, id_leccion: UUID, dato: LeccionUpdate, user_id: str = Depends(get_current_user_id)):
 
     leccion = services_leccion.actualizar(
-        db,
-        id_leccion,
+        db, id_leccion, id_usuario_edita=user_id, 
         **dato.model_dump(exclude_unset=True)
     )
 
     if not leccion:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Lección no encontrada"
+                status_code=status.HTTP_404_NOT_FOUND, detail="leccion no encontrado"
         )
 
     return leccion
 
 
 @router.delete("/{id_leccion}", response_model=RespuestaAPI)
-def eliminar_leccion(db: DbSession, id_leccion: UUID) -> None:
+def eliminar_leccion(db: DbSession, id_leccion: UUID,  user_id: str = Depends(get_current_user_id)) -> None:
     try:
         # Verificar que el usuario existe
-        usuario_existente = services_leccion.obtener_por_id(db, id_leccion)
-        if not usuario_existente:
+        leccion_existente = services_leccion.obtener_por_id(db, id_leccion)
+        if not leccion_existente:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND, detail="Lección no encontrada"
+            )
+        
+        if leccion_existente.id_usuario_creacion != UUID(user_id):
+            raise HTTPException(
+                status_code=403, detail="No autorizado para eliminar esta lección"
             )
 
         eliminado = services_leccion.eliminar(db, id_leccion=id_leccion)
