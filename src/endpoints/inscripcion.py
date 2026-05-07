@@ -75,7 +75,7 @@ def actualizar_inscripcion(
         db,
         id_inscripcion,
         id_usuario_edita=user_id,
-        ** dato.model_dump(exclude_unset=True),
+        **dato.model_dump(exclude_unset=True),
     )
 
     if not inscripcion:
