@@ -1,9 +1,8 @@
 from typing import List
 from uuid import UUID
 
-from fastapi import APIRouter, HTTPException, status
-
-from .deps import DbSession
+from fastapi import APIRouter, HTTPException, status, Depends
+from .deps import DbSession, get_current_user_id
 
 from src.services import material as services_material
 from src.schemas.response_schema import RespuestaAPI
@@ -24,21 +23,23 @@ def listar_materiales(db: DbSession, skip: int = 0, limit: int = 100):
 
 @router.get("/{id_material}", response_model=MaterialResponse)
 def obtener_material(id_material: UUID, db: DbSession) -> MaterialResponse:
+    
     db_material = services_material.obtener_por_id(db, id_material)
     if not db_material:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail=f"El material con ID {id_material} no existe en la base de datos"
+               status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"El material con ID {id_material} no existe en la base de datos",
         )
     return db_material
 
 
-@router.post("", response_model=MaterialResponse, status_code=status.HTTP_201_CREATED)
-def crear_material(db: DbSession, dato: MaterialCreate):
+@router.post("", response_model=MaterialResponse, status_code=status.HTTP_201_CREATED,)
+def crear_material(db: DbSession, dato: MaterialCreate, user_id: str = Depends(get_current_user_id)):
 
     try:
         material = services_material.crear(
             db,
-            id_usuario_creacion=dato.id_usuario_creacion,
+            id_usuario_creacion=user_id,
             id_leccion=dato.id_leccion,
             titulo_material=dato.titulo_material,
             tipo_material=dato.tipo_material,
@@ -47,40 +48,37 @@ def crear_material(db: DbSession, dato: MaterialCreate):
         return material
 
     except ValueError as e:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=str(e)
-        )
+         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
 
 
 @router.put("/{id_material}", response_model=MaterialResponse)
-def actualizar_material(id_material: UUID, dato: MaterialUpdate, db: DbSession):
+def actualizar_material(id_material: UUID, dato: MaterialUpdate, db: DbSession,user_id: UUID = Depends(get_current_user_id)):
 
     material = services_material.actualizar(
-        db,
-        id_material,
-        
-        
-        **dato.model_dump(exclude_unset=True)
+        db, id_material, id_usuario_edita=user_id, **dato.model_dump(exclude_unset=True)
     )
 
     if not material:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Material no encontrado"
+             status_code=status.HTTP_404_NOT_FOUND, detail="Material no encontrado"
         )
 
     return material
 
 
 @router.delete("/{id_material}", response_model=RespuestaAPI)
-def eliminar_material(db: DbSession, id_material: UUID) -> None:
+def eliminar_material(db: DbSession, id_material: UUID, user_id: UUID = Depends(get_current_user_id)) -> None:
     try:
         # Verificar que el usuario existe
-        usuario_existente = services_material.obtener_por_id(db, id_material)
-        if not usuario_existente:
+        material_existente = services_material.obtener_por_id(db, id_material)
+        if not material_existente:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND, detail="Material no encontrado"
+            )
+        
+        if material_existente.id_usuario_creacion != UUID(user_id):
+            raise HTTPException(
+                status_code=403, detail="No autorizado para eliminar este material"
             )
 
         eliminado = services_material.eliminar(db,  id_material=id_material)
