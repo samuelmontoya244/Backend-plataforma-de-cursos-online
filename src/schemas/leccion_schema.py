@@ -2,10 +2,11 @@ from datetime import datetime
 from typing import Optional
 from uuid import UUID
 
-from pydantic import BaseModel, ConfigDict
+
+from pydantic import BaseModel
 
 class  LeccionCreate(BaseModel):
-     id_usuario_creacion: UUID
+     
      id_curso: UUID
      titulo_leccion: str    
      descripcion_leccion: Optional[str]
@@ -14,7 +15,7 @@ class  LeccionCreate(BaseModel):
 
 
 class LeccionUpdate(BaseModel):
-    id_usuario_edita: UUID 
+    
     id_curso: Optional[UUID] = None
     titulo_leccion: Optional[str] = None
     descripcion_leccion: Optional[str] = None
