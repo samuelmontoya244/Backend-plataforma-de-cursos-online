@@ -12,24 +12,28 @@ from src.schemas.usuario_schema import (
     UsuarioCreate,
     UsuarioUpdate,
     UsuarioResponse,
-    UsuarioLogin
+    UsuarioLogin,
 )
 
 router = APIRouter(prefix="/usuarios", tags=["usuarios"])
+
 
 @router.get("", response_model=List[UsuarioResponse])
 def listar_usuarios(db: DbSession, skip: int = 0, limit: int = 100):
     usuarios = services_usuario.obtener_todos(db, skip=skip, limit=limit)
     return usuarios
 
+
 @router.get("/{id_usuario}", response_model=UsuarioResponse)
 def obtener_usuario(db: DbSession, id_usuario: UUID) -> UsuarioResponse:
     db_usuario = services_usuario.obtener_por_id(db, id_usuario)
     if not db_usuario:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail=f"El usuario con ID {id_usuario} no existe en la base de datos"
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"El usuario con ID {id_usuario} no existe en la base de datos",
         )
     return db_usuario
+
 
 @router.post("", response_model=UsuarioResponse, status_code=status.HTTP_201_CREATED)
 def crear_usuario(db: DbSession, dato: UsuarioCreate):
@@ -48,30 +52,29 @@ def crear_usuario(db: DbSession, dato: UsuarioCreate):
         return usuario
 
     except ValueError as e:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=str(e)
-        )
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
+
 
 @router.put("/{id_usuario}", response_model=UsuarioResponse)
 def actualizar_usuario(db: DbSession, id_usuario: UUID, dato: UsuarioUpdate):
 
     usuario = services_usuario.actualizar(
-        db,
-        id_usuario,
-        **dato.model_dump(exclude_unset=True)
+        db, id_usuario, **dato.model_dump(exclude_unset=True)
     )
 
     if not usuario:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Usuario no encontrado"
+            status_code=status.HTTP_404_NOT_FOUND, detail="Usuario no encontrado"
         )
 
     return usuario
 
+
 @router.delete("/{id_usuario}", response_model=RespuestaAPI)
-def eliminar_usuario(db: DbSession, id_usuario: UUID, ) -> None:
+def eliminar_usuario(
+    db: DbSession,
+    id_usuario: UUID,
+) -> None:
     try:
         # Verificar que el usuario existe
         usuario_existente = services_usuario.obtener_por_id(db, id_usuario)
@@ -95,7 +98,8 @@ def eliminar_usuario(db: DbSession, id_usuario: UUID, ) -> None:
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Error al eliminar usuario: {str(e)}",
         )
-    
+
+
 @router.post("/login")
 def login_usuario(db: DbSession, data: UsuarioLogin):
     nombre_usuario = data.nombre_usuario
@@ -105,13 +109,9 @@ def login_usuario(db: DbSession, data: UsuarioLogin):
 
     if not usuario:
         raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Credenciales inválidas"
+            status_code=status.HTTP_401_UNAUTHORIZED, detail="Credenciales inválidas"
         )
 
     token = create_token(str(usuario.id_usuario))
 
-    return {
-        "access_token": token,
-        "token_type": "bearer"
-    }
+    return {"access_token": token, "token_type": "bearer"}
