@@ -34,16 +34,14 @@ def obtener_inscripcion(db: DbSession, id_inscripcion: UUID) -> InscripcionRespo
     return db_inscripcion
 
 
-@router.post(
-    "", response_model=InscripcionResponse, status_code=status.HTTP_201_CREATED
-)
+@router.post("", response_model=InscripcionResponse, status_code=status.HTTP_201_CREATED)
 def crear_inscripcion(
     db: DbSession, dato: InscripcionCreate, user_id: str = Depends(get_current_user_id)
 ):
-
     usuario = services_usuario.obtener_por_id(db, user_id)
 
-    if not usuario or usuario.rol != "ADMIN":
+    # ✅ CORREGIDO: comparación case-insensitive para cubrir 'admin', 'ADMIN', 'Admin'
+    if not usuario or usuario.rol.upper() != "ADMIN":
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Solo los administradores pueden inscribir usuarios",
@@ -70,7 +68,6 @@ def actualizar_inscripcion(
     dato: InscripcionUpdate,
     user_id: str = Depends(get_current_user_id),
 ):
-
     inscripcion = services_inscripcion.actualizar(
         db,
         id_inscripcion,
@@ -91,7 +88,6 @@ def eliminar_inscripcion(
     db: DbSession, id_inscripcion: UUID, user_id: str = Depends(get_current_user_id)
 ) -> None:
     try:
-        # Verificar que el usuario existe
         inscripcion_existente = services_inscripcion.obtener_por_id(db, id_inscripcion)
         if not inscripcion_existente:
             raise HTTPException(
@@ -101,9 +97,7 @@ def eliminar_inscripcion(
 
         eliminado = services_inscripcion.eliminar(db, id_inscripcion)
         if eliminado:
-            return RespuestaAPI(
-                mensaje="Inscripción eliminada exitosamente", exito=True
-            )
+            return RespuestaAPI(mensaje="Inscripción eliminada exitosamente", exito=True)
         else:
             raise HTTPException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,

@@ -1,4 +1,4 @@
-""" "
+"""
 Aplicacion FastAPI, Ejecutar con:
     uvicorn src.app:app --reload --host 0.0.0.0 --port 8000
 """
@@ -41,7 +41,9 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
-# agrego CORS para permitir peticiones desde el frontend (ajustar según necesidades de seguridad)
+# ✅ CORREGIDO: CORS va primero, antes de cualquier otro middleware
+# Si va después, las preflight OPTIONS son interceptadas por el middleware
+# de auth antes de que CORS pueda responderlas, bloqueando todas las peticiones
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
@@ -53,18 +55,21 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# ✅ CORREGIDO: el middleware de auth ignora las preflight OPTIONS
+# para que CORS pueda manejarlas correctamente
 @app.middleware("http")
 async def auth_middleware(request: Request, call_next):
+    # Dejar pasar las preflight requests sin tocarlas
+    if request.method == "OPTIONS":
+        return await call_next(request)
+
     auth_header = request.headers.get("Authorization")
 
     if auth_header and auth_header.startswith("Bearer "):
         try:
             token = auth_header.replace("Bearer ", "")
             payload = decode_jwt(token)
-
-            # guardas el usuario en la request
             request.state.user = payload
-
         except Exception:
             request.state.user = None
     else:
